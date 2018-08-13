@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+  <title>Client / Server</title>
+</head>
+<body>
+  <canvas id="canvas" width="200" height="100" style="border:1px solid #000000;">
+</canvas>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io();
+  var users = [];
+
+  var canvas = document.getElementById("canvas");
+  var ctx = canvas.getContext("2d");
+
+  socket.on('users', function(_users){
+    _users.forEach(function(user) {
+      ctx.fillRect(user.x, user.y, 5, 5)
+    })
+  });
+
+  $( "html" ).keypress(function(event) {
+    switch(event.which){
+      case 119:
+        socket.emit('up')
+        break
+      case 97:
+        socket.emit('left')
+        break
+      case 115:
+        socket.emit('down')
+        break
+      case 100:
+        socket.emit('right')
+        break
+    }
+  });
+</script>
+</html>
