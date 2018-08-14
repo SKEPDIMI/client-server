@@ -8,7 +8,7 @@ app.get('/', function(req, res,next) {
   res.sendFile(__dirname + '/index.html');
 });
 
-users = [];
+users = {};
 
 loop = setInterval(function() {
   io.emit('users', users);
@@ -16,42 +16,27 @@ loop = setInterval(function() {
 
 io.on('connect', (socket) => {
   console.log('socket connected! ' + socket.id);
-  user = {id: socket.id, x: 0, y: 0}
-  users.push(user)
+  users[socket.id] = {
+    x: 0, y: 0
+  };
+  console.log(users)
 
   socket.on('left', function() {
-    users.forEach(u => {
-      if(u.id === socket.id){
-        u.x -= 1
-      }
-    })
+    users[socket.id].x -= 1
   });
   socket.on('right', function() {
-    users.forEach(u => {
-      if(u.id === socket.id){
-        u.x += 1
-      }
-    })
+    users[socket.id].x += 1
   });
   socket.on('up', function() {
-    users.forEach(u => {
-      if(u.id === socket.id){
-        u.y -= 1
-      }
-    })
+    users[socket.id].y -= 1
   });
   socket.on('down', function() {
-    users.forEach(u => {
-      if(u.id === socket.id){
-        u.y += 1
-      }
-    })
+    users[socket.id].y += 1
   });
 
   socket.on('disconnect', function(socket){
-    console.log("User disconnected: " + socket.id)
-    users = users.filter(u => u.id != socket.id)
+    delete users[socket.id]
   });
 });
 
-server.listen(3000)
+server.listen(3000, () => console.log('Listening...'))
