@@ -4,25 +4,17 @@ function socket_script () {
   socket = io();
 
   socket.on('users_data', function(users_data) {
-    for (user_id in users_data) {
-      if (users_list.hasOwnProperty(user_id)) {
-        user = users_data[user_id]
-        
-        if (!user.moving) {
-          users_list[user_id].x = user.x
-          users_list[user_id].y = user.y
-        }
+    for (id in users_data) {
+      console.log('checking for ' + id)
+      user = users_data[id]
+      if (users_list.hasOwnProperty(id)) {
+        updatePlayer(id, user)
       } else {
-        addPlayer(user_id, users_data[user_id])
+        addPlayer(id, user)
       }
     }
-  })
-  socket.on('user_move', function(user_id, direction){
-    userMove(user_id, direction)
   });
-  socket.on('user_stop', function(user_id) {
-    userStop(user_id)
-  });
+
   socket.on('user_disconnect', function(user_id) {
     removePlayer(user_id)
   });
@@ -53,7 +45,9 @@ function socket_script () {
   });
 
   $(document).on('keyup', function() {
-    socket.emit('move_stop');
+    console.log(socket.id)
+    let {x, y} = users_list[socket.id];
+    socket.emit('move_stop', {x, y});
     allowed = true
   });
 }

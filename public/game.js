@@ -75,41 +75,47 @@ function addPlayer(user_id, data) { // ADDED USER, SO UPDATED
 
     player.setBounce(0.1);
     player.setCollideWorldBounds(true);
+    console.log('added user');
+    console.log(player)
+}
+
+function updatePlayer(user_id, data) {
+    player = users_list[user_id];
+
+    if (data.moving) {
+        switch (data.moving) {
+            case 'left':
+                player.setVelocityX(-200);
+                player.anims.play('left', true);
+                break;
+            case 'right':
+                player.setVelocityX(200);
+                player.anims.play('right', true);
+                break;
+            case 'up':
+                player.setVelocityY(-200);
+                player.anims.play('up', true);
+                break;
+            case 'down':
+                player.setVelocityY(200);
+                player.anims.play('down', true);
+                break;
+        }
+    } else {
+        socket.emit('user_position', {x: player.x, y: player.y});
+        player.setVelocityX(0);
+        player.setVelocityY(0);
+        player.anims.play('idle');
+    }
 }
 
 function removePlayer(id) {
+    users_list[id].destroy();
+    delete users_list[id];
+}
+
+function userStop (id) {
     player = users_list[id];
-    player.destroy();
-    delete  users_list[id];
-}
-
-function userMove(user_id, direction) {
-    player = users_list[user_id];
-
-    if (direction == 'left')
-    {
-        player.setVelocityX(-200);
-        player.anims.play('left', true);
-    }
-    else if (direction == 'right')
-    {
-        player.setVelocityX(200);
-        player.anims.play('right', true);
-    }
-    else if (direction == 'up')
-    {
-        player.setVelocityY(-200);
-        player.anims.play('up', true);
-    } else if (direction == 'down')
-    {
-        player.setVelocityY(200);
-        player.anims.play('down', true);
-    }
-}
-
-function userStop () {
-    player = users_list[socket.id];
-    console.log('I will give you coords from ' + user_id)
     socket.emit('user_position', {x: player.x, y: player.y});
     player.setVelocityX(0);
     player.setVelocityY(0);

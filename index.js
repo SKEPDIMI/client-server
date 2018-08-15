@@ -8,37 +8,56 @@ app.get('/', function(req, res,next) {
   res.sendFile(__dirname + '/public/index.html');
 });
 
-users = {};
+var users_data = {};
 
-loop = setInterval(function() {
-  io.emit('users_data', users);
-}, 1000);
+var loop = false;
+function beginLoop() {
+  loop = setInterval(() => {
+    if (Object.keys(users_data).length == 0) { // If there are no users, stop the looping!
+      clearInterval(loop);
+      loop = false;
+      console.log("stopped server loop");
+    } else { // Else if there are users, send that!
+      io.emit('users_data', users_data);
+    }
+  }, 15);
+}
+
+function generateUserData() {
+  return { x: 0, y: 0, moving: false } // Probably will be more dynamic on the future
+}
 
 io.on('connect', (socket) => {
-  users[socket.id] = {
-    x: 100,
-    y: 100,
-    moving: false
-  };
+  if (Object.keys(users_data).length == 0) { // If there are no users in our list, begin the loop with this one!
+    users_data[socket.id] = generateUserData();
+    beginLoop();
+  } else { // Or just add to the users list
+    users_data[socket.id] = generateUserData();
+  }
 
   socket.on('user_position', function(coord) {
     let {x, y} = coord;
 
-    users[socket.id].x = x
-    users[socket.id].y = y
+    users_data[socket.id].x = x
+    users_data[socket.id].y = y
   });
   socket.on('move', function(direction) {
-    users[socket.id].moving = true;
-    io.emit('user_move', socket.id, direction);
+    direction = ['left', 'right', 'up', 'down'].includes(direction) ? direction : false;
+    users_data[socket.id].moving = direction;
   });
-  socket.on('move_stop', function() {
-    users[socket.id].moving = false;
-    io.emit('user_stop', socket.id);
+  socket.on('move_stop', function(coordinates) {
+    let {x, y} = coordinates;
+
+    users_data[socket.id] = {
+      moving: false,
+      x,
+      y
+    };
   });
 
   socket.on('disconnect', function(){
-    io.emit('user_disconnect', socket.id);
-    delete users[socket.id];
+    socket.emit('user_disconnect', socket.id);
+    delete users_data[socket.id];
   });
 });
 
