@@ -1,5 +1,8 @@
 var socket;
 
+// Speed up calls to hasOwnProperty
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
 function socket_script () {
   socket = io();
 
@@ -10,6 +13,12 @@ function socket_script () {
         updatePlayer(id, user)
       } else {
         addPlayer(id, user)
+      }
+    }
+
+    for (id in users_list) { // Will get rid of users in the game if they are not in the server users_data object
+      if (!users_data.hasOwnProperty(id)) {
+        removePlayer(id)
       }
     }
   });
