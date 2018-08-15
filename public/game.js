@@ -75,8 +75,6 @@ function addPlayer(user_id, data) { // ADDED USER, SO UPDATED
 
     player.setBounce(0.1);
     player.setCollideWorldBounds(true);
-    console.log('added user');
-    console.log(player)
 }
 
 function updatePlayer(user_id, data) {
@@ -118,7 +116,6 @@ function removePlayer(id) {
 
 function userStop (id) {
     player = users_list[id];
-    socket.emit('user_position', {x: player.x, y: player.y});
     player.setVelocityX(0);
     player.setVelocityY(0);
     player.anims.play('idle');
