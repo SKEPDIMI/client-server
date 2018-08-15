@@ -69,8 +69,8 @@ function create ()
     });
 }
 
-function addPlayer(user_id) { // ADDED USER, SO UPDATED
-    users_list[user_id] = _this.physics.add.sprite(100, 450, 'dude');
+function addPlayer(user_id, data) { // ADDED USER, SO UPDATED
+    users_list[user_id] = _this.physics.add.sprite(data.x, data.y, 'dude');
     player = users_list[user_id];
 
     player.setBounce(0.1);
@@ -107,9 +107,10 @@ function userMove(user_id, direction) {
     }
 }
 
-function userStop (user_id) {
-    player = users_list[user_id];
-    socket.emit('user_data');
+function userStop () {
+    player = users_list[socket.id];
+    console.log('I will give you coords from ' + user_id)
+    socket.emit('user_position', {x: player.x, y: player.y});
     player.setVelocityX(0);
     player.setVelocityY(0);
     player.anims.play('idle');

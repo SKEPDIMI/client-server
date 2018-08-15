@@ -15,22 +15,25 @@ loop = setInterval(function() {
 }, 1000);
 
 io.on('connect', (socket) => {
-  io.emit('user_connect', socket.id)
-  socket.on('move_left', function() {
-    socket.emit('user_move', socket.id, 'left');
+  users[socket.id] = {
+    x: 100,
+    y: 100,
+    moving: false
+  };
+
+  socket.on('user_position', function(coord) {
+    let {x, y} = coord;
+
+    users[socket.id].x = x
+    users[socket.id].y = y
   });
-  socket.on('move_right', function() {
-    console.log("USR MV RGHT")
-    socket.emit('user_move', socket.id, 'right');
-  });
-  socket.on('move_up', function() {
-    socket.emit('user_move', socket.id, 'up');
-  });
-  socket.on('move_down', function() {
-    socket.emit('user_move', socket.id, 'down');
+  socket.on('move', function(direction) {
+    users[socket.id].moving = true;
+    io.emit('user_move', socket.id, direction);
   });
   socket.on('move_stop', function() {
-    socket.emit('user_stop', socket.id);
+    users[socket.id].moving = false;
+    io.emit('user_stop', socket.id);
   });
 
   socket.on('disconnect', function(){
@@ -39,4 +42,4 @@ io.on('connect', (socket) => {
   });
 });
 
-server.listen(3000, () => console.log('Listening...'))
+server.listen(process.env.PORT || 3000, () => console.log('Listening...'))
