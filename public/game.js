@@ -2,8 +2,8 @@ var users_list = {}
 
 var config = {
   type: Phaser.AUTO,
-  width: window.innerWidth,
-  height: window.innerHeight,
+  width: 400,
+  height: 200,
   physics: {
       default: 'arcade',
       arcade: {
@@ -102,7 +102,9 @@ function updatePlayer(user_id, data) {
                 break;
         }
     } else {
-        socket.emit('user_position', {x: player.x, y: player.y});
+        var { x, y } = data
+        player.x = x
+        player.y = y
         player.setVelocityX(0);
         player.setVelocityY(0);
         player.anims.play('idle');
