@@ -41,13 +41,13 @@ function socket_script () {
         socket.emit('move', 'up')
         break
       case 65:
-      socket.emit('move', 'left')
+        socket.emit('move', 'left')
         break
       case 83:
-      socket.emit('move', 'down')
+        socket.emit('move', 'down')
         break
       case 68:
-      socket.emit('move', 'right')
+        socket.emit('move', 'right')
         break
     }
   });
