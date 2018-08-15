@@ -3,39 +3,39 @@ var app = express();
 var server = require('http').createServer(app);  
 var io = require('socket.io')(server);
 
-app.use(express.static(__dirname + '/bower_components'));  
+app.use(express.static(__dirname + '/public'));  
 app.get('/', function(req, res,next) {  
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/public/index.html');
 });
 
 users = {};
 
 loop = setInterval(function() {
-  io.emit('users', users);
-}, 15) // 66 Hz
+  io.emit('users_data', users);
+}, 1000);
 
 io.on('connect', (socket) => {
-  console.log('socket connected! ' + socket.id);
-  users[socket.id] = {
-    x: 0, y: 0
-  };
-  console.log(users)
+  io.emit('user_connect', socket.id)
+  socket.on('move_left', function() {
+    socket.emit('user_move', socket.id, 'left');
+  });
+  socket.on('move_right', function() {
+    console.log("USR MV RGHT")
+    socket.emit('user_move', socket.id, 'right');
+  });
+  socket.on('move_up', function() {
+    socket.emit('user_move', socket.id, 'up');
+  });
+  socket.on('move_down', function() {
+    socket.emit('user_move', socket.id, 'down');
+  });
+  socket.on('move_stop', function() {
+    socket.emit('user_stop', socket.id);
+  });
 
-  socket.on('left', function() {
-    users[socket.id].x -= 1
-  });
-  socket.on('right', function() {
-    users[socket.id].x += 1
-  });
-  socket.on('up', function() {
-    users[socket.id].y -= 1
-  });
-  socket.on('down', function() {
-    users[socket.id].y += 1
-  });
-
-  socket.on('disconnect', function(socket){
-    delete users[socket.id]
+  socket.on('disconnect', function(){
+    io.emit('user_disconnect', socket.id);
+    delete users[socket.id];
   });
 });
 
