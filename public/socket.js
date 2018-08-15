@@ -5,7 +5,6 @@ function socket_script () {
 
   socket.on('users_data', function(users_data) {
     for (id in users_data) {
-      console.log('checking for ' + id)
       user = users_data[id]
       if (users_list.hasOwnProperty(id)) {
         updatePlayer(id, user)
@@ -45,7 +44,6 @@ function socket_script () {
   });
 
   $(document).on('keyup', function() {
-    console.log(socket.id)
     let {x, y} = users_list[socket.id];
     socket.emit('move_stop', {x, y});
     allowed = true
