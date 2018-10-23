@@ -2,8 +2,8 @@ var users_list = {}
 
 var config = {
   type: Phaser.AUTO,
-  width: 400,
-  height: 200,
+  width: 500,
+  height: 400,
   physics: {
       default: 'arcade',
       arcade: {
@@ -22,9 +22,9 @@ var _this;
 function preload ()
 {
     _this = this;
-    this.load.image('sky', 'assets/floor.jpg');
+    this.load.image('sky', '../assets/floor.jpg');
     this.load.spritesheet('dude', 
-        'assets/sprites.png',
+        '../assets/sprites.png',
         { frameWidth: 64, frameHeight: 96 }
     );
 }
