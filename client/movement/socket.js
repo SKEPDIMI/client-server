@@ -4,7 +4,7 @@ var socket;
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function socket_script () {
-  socket = io();
+  socket = io('/movement');
 
   socket.on('users_data', function(users_data) {
     for (id in users_data) {

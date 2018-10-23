@@ -22,9 +22,9 @@ var _this;
 function preload ()
 {
     _this = this;
-    this.load.image('sky', '../assets/floor.jpg');
+    this.load.image('sky', '../public/assets/floor.jpg');
     this.load.spritesheet('dude', 
-        '../assets/sprites.png',
+        '../public/assets/sprites.png',
         { frameWidth: 64, frameHeight: 96 }
     );
 }

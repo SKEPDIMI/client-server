@@ -9,19 +9,24 @@
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
   crossorigin="anonymous"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="../lib/phaser.js"></script>
+  <script src="../public/lib/phaser.js"></script>
 
   <title>Client / Server</title>
   <style>
     body {
-      text-align: center;
-      font-family: Arial, Helvetica, sans-serif;
-      min-height: 100vh;
+      background-color: rgb(31, 31, 31);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #chat {
+      position: absolute;
     }
   </style>
 </head>
 <body>
-  <h1>Links</h1>
-  <a href="./movement/index.html">Movement Demo</a>
 </body>
+<script src="./script.js"></script>
+<script src="./socket.js"></script>
 </html>
