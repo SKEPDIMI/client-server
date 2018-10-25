@@ -1,3 +1,5 @@
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
 var users_list = {}
 
 var config = {
@@ -31,7 +33,7 @@ function preload ()
 
 function create ()
 {
-    socket_script()
+    Client.joinGame();
     this.add.image(0, 0, 'sky').setOrigin(0, 0);
     this.anims.create({
         key: 'left',
