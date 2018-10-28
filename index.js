@@ -1,12 +1,12 @@
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);  
-var io = require('socket.io')(server);
+var io = require('socket.io')(server, { reconnection: false });
 
 require('./lib/routes/movement')(io);
 
 app.use(express.static(__dirname + '/client'));  
-app.get('/', function(req, res,next) { 
+app.get('/', function(req, res) { 
   res.sendFile(__dirname + '/client/index.html');
 });
 
