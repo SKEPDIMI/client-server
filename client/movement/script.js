@@ -87,3 +87,10 @@ function removePlayer(id) {
     users_list[id].sprite.destroy();
     delete users_list[id];
 }
+
+function lerp() {
+    // change sprite velocity or interpolate movement stacks?
+    // that is the question
+
+    // need to find out how to access game FPS too
+}
