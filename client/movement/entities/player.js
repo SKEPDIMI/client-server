@@ -67,6 +67,9 @@ Player.prototype.update = function(movementStack) {
   this.sprite.x = movementStack.x;
   this.sprite.y = movementStack.y;
   this.direction = movementStack.direction;
+  this.moving = movementStack.moving;
+  
+  this.animateMovement(this.moving, this.direction);
 }
 
 Player.prototype.animateMovement = function(moving, direction) {
