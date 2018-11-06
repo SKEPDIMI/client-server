@@ -96,7 +96,7 @@ Player.prototype.animateMovement = function(moving, direction) {
     this.sprite.anims.play(direction, true);
   } else {
     // this.sprite.setVelocityX(0);
-    //this.sprite.setVelocityY(0);
+    // this.sprite.setVelocityY(0);
     this.sprite.anims.play(direction + '_idle');
   }
 }

@@ -13,14 +13,14 @@ var t1 = Date.now();
 var serverDeltaTime = 0;
 
 Client.socket.on('usersPool', function(usersPool) {
-  var serverDeltaTime = Date.now() - t1;
+  serverDeltaTime = Date.now() - t1;
   t1 += serverDeltaTime;
 
   for (var id in usersPool) {
     var data = usersPool[id];
     if(users_list[id]) {
-      // inerpolate their movementQueue!
-      users_list[id].movementQueue = data.movementQueue;
+      var buf = buffer(data.movementQueue)
+      users_list[id].movementQueue = buf;
     } else {
       // add new user
       addPlayer(id, data);

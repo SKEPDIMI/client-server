@@ -45,29 +45,18 @@ function create ()
     this.add.image(0, 0, 'sky').setOrigin(0, 0);
 }
 
-var t2 = Date.now();
-
 function update() {
-    // update whenever we receive update from server
-    var delta = Date.now() - t2;
-    if (delta >= serverDeltaTime) {
-        t2 = Date.now();
+    for(let id in users_list) {
+        var player = users_list[id];
 
-        for(let id in users_list) {
-            var player = users_list[id];
-    
-            if (player.movementQueue.length == 0) {
-                continue
-            }
-    
-            // grab the last movement stack
-            movementStack = player.movementQueue.shift();
-            /*if (!movementStack.moving) {
-                continue
-            }*/
-
-            player.update(movementStack);
+        if (player.movementQueue.length == 0) {
+            continue
         }
+
+        // set user's state to the first stack in the movementQueue
+        player.update(player.movementQueue[0]);
+        // remove stack we just updated to
+        users_list[id].movementQueue = player.movementQueue.slice(1);
     }
 }
 
@@ -88,9 +77,9 @@ function removePlayer(id) {
     delete users_list[id];
 }
 
-function lerp() {
-    // change sprite velocity or interpolate movement stacks?
-    // that is the question
+// game.loop.actualFps
 
-    // need to find out how to access game FPS too
+function lerp() {
+    var FPS = Math.round(game.loop.actualFps);
+
 }
