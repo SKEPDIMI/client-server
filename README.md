@@ -1,5 +1,5 @@
 # client-server
-testing mechanics for grandquest
+client - server mechanics
 
 how to run:
 
