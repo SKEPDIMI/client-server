@@ -1,8 +1,10 @@
-function Player(data) {
+function Player(data, isCurrentUser = false) {
   this.speed = data.speed;
   this.moving = data.moving;
   this.direction = data.direction;
   this.movementQueue = data.movementQueue;
+
+  this.isCurrentUser = isCurrentUser;
 
   this.sprite = _this.physics.add.sprite(0, 0, 'dude')
   this.sprite.setBounce(false);
@@ -64,17 +66,21 @@ Player.addAnimations = function() {
 }
 
 Player.prototype.update = function(movementStack) {
+  // dont update player animation every tick! only when it's different
+  // also don't animate if it's the current user, we do that with keystrokes :)
+  if (!this.isCurrentUser && this.moving != movementStack.moving || this.direction != movementStack.direction) {
+    this.animateMovement(movementStack.moving, movementStack.direction);
+  }
+  
   this.sprite.x = movementStack.x;
   this.sprite.y = movementStack.y;
   this.direction = movementStack.direction;
   this.moving = movementStack.moving;
-  
-  this.animateMovement(this.moving, this.direction);
 }
 
 Player.prototype.animateMovement = function(moving, direction) {
   if (moving) {
-    /*switch (direction) {
+    switch (direction) {
         case 'left':
           this.sprite.setVelocityY(0);
           this.sprite.setVelocityX(-this.speed);
@@ -91,12 +97,12 @@ Player.prototype.animateMovement = function(moving, direction) {
           this.sprite.setVelocityX(0);
           this.sprite.setVelocityY(this.speed);
           break;
-    }*/
+    }
 
     this.sprite.anims.play(direction, true);
   } else {
-    // this.sprite.setVelocityX(0);
-    // this.sprite.setVelocityY(0);
+    this.sprite.setVelocityX(0);
+    this.sprite.setVelocityY(0);
     this.sprite.anims.play(direction + '_idle');
   }
 }

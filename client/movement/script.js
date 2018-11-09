@@ -1,6 +1,6 @@
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-var users_list = {}
+var spawnedUsers = {}
 
 var config = {
   type: Phaser.AUTO,
@@ -46,35 +46,33 @@ function create ()
 }
 
 function update() {
-    for(let id in users_list) {
-        var player = users_list[id];
+    for(let id in spawnedUsers) {
+        var player = spawnedUsers[id];
 
-        if (player.movementQueue.length == 0) {
-            continue
+        if (player.movementQueue.length >= 1) {
+            // removes first movement from queue and returns it to be used to update user
+            movement = spawnedUsers[id].movementQueue.shift();
+            player.update(movement);
         }
-
-        // set user's state to the first stack in the movementQueue
-        player.update(player.movementQueue[0]);
-        // remove stack we just updated to
-        users_list[id].movementQueue = player.movementQueue.slice(1);
     }
 }
 
 function addPlayer(user_id, data) { // ADDED USER, SO UPDATED
-    users_list[user_id] = new Player(data);
+    let isCurrentUser = user_id == Client.id
+    spawnedUsers[user_id] = new Player(data, isCurrentUser);
 
-    if (user_id == Client.id) {
-        currentUser = users_list[user_id];
+    if (isCurrentUser) {
+        currentUser = spawnedUsers[user_id];
     }
 }
 
 function updatePlayer(user_id, data) {
-    users_list[user_id].update(data);
+    spawnedUsers[user_id].update(data);
 }
 
 function removePlayer(id) {
-    users_list[id].sprite.destroy();
-    delete users_list[id];
+    spawnedUsers[id].sprite.destroy();
+    delete spawnedUsers[id];
 }
 
 // game.loop.actualFps

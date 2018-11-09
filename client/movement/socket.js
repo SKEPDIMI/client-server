@@ -18,16 +18,27 @@ Client.socket.on('usersPool', function(usersPool) {
 
   for (var id in usersPool) {
     var data = usersPool[id];
-    if(users_list[id]) {
-      var buf = buffer(data.movementQueue)
-      users_list[id].movementQueue = buf;
+    if(spawnedUsers[id]) {
+      var user = spawnedUsers[id];
+      // do not interpolate the current user, just correct their position
+      if (user.isCurrentUser) {
+        spawnedUsers[id].movementQueue = data.movementQueue.splice(-1)
+        continue
+      }
+      // INTERPOLATE
+      let lastMovementData = user.movementQueue.splice(-1);
+
+      if (lastMovementData) {
+        // user.queue += lerp(last movement => received movement)
+        spawnedUsers[id].movementQueue = buffer(lastMovementData, data.movementQueue);
+      }
     } else {
       // add new user
       addPlayer(id, data);
     }
   }
 
-  for (id in users_list) { // Will get rid of users in the game if they are not in the server users_data object
+  for (id in spawnedUsers) { // Will get rid of users in the game if they are not in the server users_data object
     if (!usersPool.hasOwnProperty(id)) {
       removePlayer(id)
     }
@@ -70,6 +81,5 @@ $(document).on('keydown', function(event) {
 $(document).on('keyup', function() {
   Client.socket.emit('move_stop');
   currentUser.animateMovement(false, currentUser.direction);
-
   allowed = true
 });
