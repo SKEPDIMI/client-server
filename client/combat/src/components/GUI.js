@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Howl } from 'howler';
 import ListItem from './ListItem'
+import { connect } from 'react-redux';
 
 var cursorMove = new Howl({
   src: [require('../assets/audio/cursor-move.mp3')]
@@ -123,11 +124,14 @@ class GUI extends Component {
   }
 
   render() {
+    let {
+      currentPlayer
+    } = this.props
 
     return(
       <div className="GUI">
         <div className="left">
-          <h2>HP 75/100</h2>
+          <h2>HP {currentPlayer.health}/{currentPlayer.maxHealth}</h2>
         </div>
         <div className="center">
           <ul>
@@ -144,4 +148,8 @@ class GUI extends Component {
   }
 }
 
-export default GUI
+const d = state => ({
+  currentPlayer: state.currentPlayer
+});
+
+export default connect(d)(GUI)
