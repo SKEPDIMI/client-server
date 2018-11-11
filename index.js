@@ -5,6 +5,7 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server, { reconnection: false });
 
 require('./lib/routes/movement')(io);
+require('./lib/routes/combat')(io);
 
 app.use(cors());
 app.use(express.static(__dirname + '/client'));  
