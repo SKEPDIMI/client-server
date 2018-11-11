@@ -1,5 +1,13 @@
 import React, { Component } from 'react'
+import { Howl } from 'howler';
 import ListItem from './ListItem'
+
+var cursorMove = new Howl({
+  src: [require('../assets/audio/cursor-move.mp3')]
+});
+var cursorSelect = new Howl({
+  src: [require('../assets/audio/cursor-select.mp3')]
+});
 
 const SCREENS = {
   root: {
@@ -62,16 +70,19 @@ class GUI extends Component {
         this.setState({
           currentlyActive: currentlyActive === 0 ? currentScreen.options.length-1 : currentlyActive - 1
         });
+        cursorMove.play()
         return
       // DOWN ARROW
       case 40:
         this.setState({
           currentlyActive: currentlyActive === currentScreen.options.length-1 ? 0 : currentlyActive + 1
         })
+        cursorMove.play()
         return
       // ENTER
       case 13:
         this.navigateToOption(currentScreen, currentScreen.options[currentlyActive]);
+        cursorSelect.play()
         return
     }
   }
