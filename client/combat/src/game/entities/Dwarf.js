@@ -2,10 +2,6 @@ function Dwarf(gameInstance, name, { x, y }) {
   this.sprite = gameInstance.add.sprite(x, y, 'dwarf')
     .setDisplaySize(120, 180)
     .play('idle');
-  
-  this.state = {
-    health: 100
-  }
 
   // NAME TAG OVER THE USER
 
