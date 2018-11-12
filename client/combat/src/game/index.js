@@ -1,10 +1,17 @@
 import Phaser from 'phaser';
 import _ from 'underscore';
 
+import { getEntityType } from '../redux/actions';
 import helpers from './helpers';
 
 import loadAssets from './preload/loadAssets';
 import initiateEntities from './preload/initiateEntities';
+
+_.mixin({
+  hasSameKeys: function(a, b) {
+    return Object.keys(a).length === Object.keys(b).length && Object.keys(a).every(k => b.hasOwnProperty(k))
+  }
+});
 
 export default (store) => {
   let state = {}
@@ -46,43 +53,81 @@ export default (store) => {
     
     gameInstance.bg = gameInstance.add.image(window.innerWidth/2, window.innerHeight/2, 'bg')
     gameInstance.bg.setDisplaySize(window.innerWidth, window.innerHeight);
-
-    /* Object.values(PLAYERS).forEach(data => {
-      let player = this.entities['dwarf'](gameInstance,
-        data.name,
-        
-      );
-    })*/
   }
 
   function update ()
   {
-    if(!this.currentPlayer && state.currentPlayer) {
-      this.currentPlayer = state.currentPlayer;
-      spawn(this.currentPlayer);
+    let result = getSpawnedDifference();
+
+    for(let i in result.spawn) {
+      spawn(i, result.spawn[i])
     }
-    if(!_.isEqual(this.enemies, state.enemies)) {
-      this.enemies = state.enemies;
-      spawn(
-        Object.values(state.enemies)[0],
-      )
-    }
+    /*
+      for(let i in result.despawn) {
+        despawn(i, result.despawn[i])
+      }
+    */
   }
 
-  function spawn(obj) {
-    let { entity, name } = obj;
+  function spawn(id, entity) {
+    let { entityData } = entity;
 
-    let selected = gameInstance.entities[entity.id];
+    let selected = gameInstance.entities[entityData.id];
 
     if (!selected) {
-      console.error('UNKNOWN ENTITY: ', entity.id);
+      console.error('UNKNOWN ENTITY.ID: ', entityData.id);
     }
 
-    new selected(
+    let spawned = new selected(
       gameInstance,
-      name,
-      helpers.coordinatesForEntity(obj, state)
+      entity,
+      helpers.coordinatesForEntity(entity, state),
     );
+
+    store.dispatch(getEntityType(id, spawned))
+  }
+
+  function getSpawnedDifference() {
+    let {
+      players,
+      enemies,
+    } = state.gameReducer;
+    let {
+      enemyEntities,
+      playerEntities,
+    } = state.phaserReducer;
+
+    let inState = {
+      ...enemies,
+      ...players,
+    }
+    let spawned = {
+      ...playerEntities,
+      ...enemyEntities,
+    }
+    
+    let result = {
+      spawn: {},
+      despawn: {},
+    }
+
+    // if we have the same id's in spawned and state, return empty result
+    if(_.hasSameKeys(inState, spawned)) {
+      return result
+    }
+    
+    for(let id in inState) {
+        if (!_.has(spawned, id)) {
+            result.spawn[id] = inState[id]
+        }
+    }
+    for (let id in spawned) {
+        if (!_.has(inState, id)) {
+            result.despawn[id] = spawned[id]
+        }
+    }
+    console.log('r ', result)
+    return result
   }
 
   var game = new Phaser.Game(config);

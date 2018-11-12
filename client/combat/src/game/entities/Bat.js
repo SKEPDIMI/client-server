@@ -1,8 +1,8 @@
-function Bat(gameInstance, name, { x, y }) {
+function Bat(gameInstance, {name, entityData}, { x, y }) {
+  this.entityData = entityData;
   this.sprite = gameInstance.add.sprite(x, y, 'bat')
     .setDisplaySize(80, 80)
     .play('bat-idle');
-  console.log('sprite', this.sprite);
 
   // NAME TAG OVER THE USER
 
