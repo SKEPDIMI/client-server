@@ -3,6 +3,20 @@ export const getCurrentUser = (id, players) => {
   
   return {
     type: 'SET_CURRENT_PLAYER',
-    payload: currentPlayer,
+    payload: {id, player: currentPlayer},
+  }
+}
+
+export const getEntityType = (id, entity) => {
+  if (entity.entityData.enemy) {
+    return {
+      type: 'SPAWN_ENEMY_SPRITE',
+      payload: {id, entity},
+    }
+  } else {
+    return {
+      type: 'SPAWN_PLAYER_SPRITE',
+      payload: {id, entity},
+    }
   }
 }

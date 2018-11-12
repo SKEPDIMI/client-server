@@ -21,8 +21,8 @@ class App extends Component {
 }
 
 const d = state => ({
-  currentPlayer: state.currentPlayer,
-  level: state.currentLevel,
+  currentPlayer: state.gameReducer.currentPlayer,
+  level: state.gameReducer.currentLevel,
 });
 
 export default connect(d)(App);

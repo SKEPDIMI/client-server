@@ -21,7 +21,7 @@ export default (state = defaultState, action) => {
         currentLevel: action.payload
       }
     case 'SET_CURRENT_PLAYER':
-      let player = action.payload;
+      let {id, player} = action.payload;
 
       return {
         ...state,
@@ -31,7 +31,7 @@ export default (state = defaultState, action) => {
         },
         players: {
           ...state.players,
-          [player.id]: player,
+          [id]: player,
         }
       }
     case 'SET_ENEMIES':
@@ -41,6 +41,11 @@ export default (state = defaultState, action) => {
           ...state.enemies,
           ...action.payload
         }
+      }
+    case 'SET_TURN_TARGET':
+      return {
+        ...state,
+        currentTarget: true,
       }
     default:
       return state
