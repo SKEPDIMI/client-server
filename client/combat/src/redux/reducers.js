@@ -3,7 +3,7 @@ const defaultState = {
     title: ''
   },
   currentPlayer: {
-
+    _loading: true,
   },
   players: {
 
@@ -22,7 +22,10 @@ export default (state = defaultState, action) => {
 
       return {
         ...state,
-        currentPlayer: player,
+        currentPlayer: {
+          ...player,
+          _loading: false
+        },
         players: {
           ...state.players,
           [player.id]: player,
