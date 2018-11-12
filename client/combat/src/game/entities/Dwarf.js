@@ -1,7 +1,7 @@
 function Dwarf(gameInstance, name, { x, y }) {
   this.sprite = gameInstance.add.sprite(x, y, 'dwarf')
     .setDisplaySize(120, 180)
-    .play('idle');
+    .play('dwarf-idle');
 
   // NAME TAG OVER THE USER
 
@@ -19,7 +19,7 @@ function Dwarf(gameInstance, name, { x, y }) {
 
 Dwarf.initalizer = function(gameInstance) {
   gameInstance.anims.create({
-    key: 'idle',
+    key: 'dwarf-idle',
     frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 0, end: 4 }),
     frameRate: 5,
     repeat: -1
