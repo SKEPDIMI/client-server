@@ -8,6 +8,9 @@ const defaultState = {
   players: {
 
   },
+  enemies: {
+
+  }
 }
 
 export default (state = defaultState, action) => {
@@ -29,6 +32,14 @@ export default (state = defaultState, action) => {
         players: {
           ...state.players,
           [player.id]: player,
+        }
+      }
+    case 'SET_ENEMIES':
+      return {
+        ...state,
+        enemies: {
+          ...state.enemies,
+          ...action.payload
         }
       }
     default:
