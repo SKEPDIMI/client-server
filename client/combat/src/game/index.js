@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import _ from 'underscore';
 
 import helpers from './helpers';
 
@@ -57,12 +58,20 @@ export default (store) => {
   function update ()
   {
     if(!this.currentPlayer && state.currentPlayer) {
-      this.currentPlayer = state.currentPlayer
+      this.currentPlayer = state.currentPlayer;
       spawn(this.currentPlayer);
+    }
+    if(!_.isEqual(this.enemies, state.enemies)) {
+      this.enemies = state.enemies;
+      spawn(
+        Object.values(state.enemies)[0],
+      )
     }
   }
 
-  function spawn({ entity, name }) {
+  function spawn(obj) {
+    let { entity, name } = obj;
+
     let selected = gameInstance.entities[entity.id];
 
     if (!selected) {
@@ -72,9 +81,7 @@ export default (store) => {
     new selected(
       gameInstance,
       name,
-      helpers.coordinatesForEntityNumber(
-        Object.keys(state.players).length
-      )
+      helpers.coordinatesForEntity(obj, state)
     );
   }
 

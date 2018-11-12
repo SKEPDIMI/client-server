@@ -1,13 +1,25 @@
 var helpers = {}
 
-helpers.coordinatesForEntityNumber = (n) => {
-  // all user's will not be in the same position.
-  // therefore we need to set their position based on how many users there are (n)
+helpers.coordinatesForEntity = (obj, store) => {
+  // not all entities will be places in the same postion
+  // therefore we need to set their positions based on how many other entities of their type there are
+  const w = window.innerWidth
+  const h = window.innerHeight
 
-  // this is the default position:
-  return {
-    x: window.innerWidth/4,
-    y: window.innerHeight*(4/7)
+  if (obj.enemy) {
+    let enemies = Object.values(store.enemies).length;
+
+    return {
+      x: w*(3/4),
+      y: h*(4/7),
+    }
+  } else {
+    let players = Object.values(store.players).length;
+
+    return {
+      x: w*(1/4),
+      y: h*(4/7)
+    }
   }
 }
 
