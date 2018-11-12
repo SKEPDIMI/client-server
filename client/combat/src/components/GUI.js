@@ -10,45 +10,14 @@ var cursorSelect = new Howl({
   src: [require('../assets/audio/cursor-select.mp3')]
 });
 
-const SCREENS = {
-  root: {
-    options: [
-        { title: 'Attacks', to: 'attacks' },
-        { title: 'Potions', to: 'potions' },
-        { title: 'Actions', to: 'actions' }
-      ]
-  },
-  potions: {
-    options: [
-      { title: 'Back', to: 'root' },
-      { title: 'Heal'},
-      { title: 'Thorns'},
-      { title: 'Poison'},
-      { title: 'Mana'}
-    ]
-  },
-  attacks: {
-    options: [
-      { title: 'Back', to: 'root'},
-      { title: 'Swing'},
-      { title: 'Jab'},
-    ]
-  },
-  actions: {
-    options: [
-      { title: 'Back', to: 'root'},
-      { title: 'Run away'},
-    ]
-  }
-}
-
 
 class GUI extends Component {
   constructor(props){
     super(props);
     this.state = {
       currentlyActive: 0,
-      currentScreen: SCREENS.root,
+      currentScreen: null,
+      screens: null
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -57,6 +26,20 @@ class GUI extends Component {
   };
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyPress);
+  }
+  componentDidUpdate(prevProps) {
+    let {
+      SCREENS,
+    } = this.props;
+
+    // if we havent set the screen AND we have valid SCREENS
+    if (!this.state.currentScreen && SCREENS) {
+      console.log('set root');
+      this.setState({
+        currentScreen: SCREENS.root,
+        currentlyActive: 0,
+      });
+    }
   }
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyPress);
@@ -82,16 +65,16 @@ class GUI extends Component {
         return
       // ENTER
       case 13:
-        this.navigateToOption(currentScreen, currentScreen.options[currentlyActive]);
+        this.navigateToOption(currentScreen.options[currentlyActive]);
         cursorSelect.play()
         return
     }
   }
 
-  navigateToOption(prev, option) {
+  navigateToOption(option) {
     // if it redirects us
     if(option.to) {
-      let nextScreen = SCREENS[option.to]
+      let nextScreen = this.props.SCREENS[option.to]
       
       if(!nextScreen) {
         console.log(option.to + ' is not a valid screen.')
@@ -109,18 +92,13 @@ class GUI extends Component {
   }
   mapOptions() {
     let { currentlyActive, currentScreen } = this.state;
+    if (!currentScreen) return null
 
-    let mappedOptions = [
-      ...currentScreen.options.map((option, i) => {
-        return (
-          <ListItem key={i} selected={currentlyActive === i}>
-            {option.title}
-          </ListItem>
-        )
-      })
-    ];
-
-    return mappedOptions
+    return currentScreen.options.map((option, i) => (
+      <ListItem key={i} selected={currentlyActive === i}>
+        {option.title}
+      </ListItem>)
+    );
   }
 
   render() {
