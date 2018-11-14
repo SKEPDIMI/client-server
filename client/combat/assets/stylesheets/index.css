@@ -61,3 +61,22 @@ header {
 .GUI .right {
   border-left: 2px solid white
 }
+
+.form {
+  background: rgba(24, 24, 24, 0.856);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  min-height: 30vh;
+}
+
+.from input {
+  background: #4b4b4b;
+  color: white;
+  box-shadow: #4b4b4b 1px 1px 0;
+  
+}
