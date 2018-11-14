@@ -4,9 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./assets/stylesheets/index.css">
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+  <script src="./js/phaser.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
   <title>Combat</title>
 </head>
 <body>
-  
+  <div id="root">
+    <header>
+      <h1 id="title">
+        Combat - {Location}
+      </h1>
+    </header>
+    <form id="form">
+      <input name="name" type="text" id="name-input">
+    </form>
+    <div class="GUI">
+      
+    </div>
+  </div>
 </body>
+<script src="./js/index.js"></script>
+<script src="./js/game/helpers.js"></script>
+<script src="./js/game/entities/bat.js"></script>
+<script src="./js/game/entities/dwarf.js"></script>
+<script src="./js/game/entityTypes.js"></script>
+<script src="./js/game/screens/playScreen.js"></script>
+<script src="./js/game/screens/bootScreen.js"></script>
+<script src="./js/game/index.js"></script>
 </html>

@@ -10,13 +10,6 @@ body {
   height: 100vh;
   width: 100vw;
 }
-.App {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-}
 header {
   position: absolute;
   top: 0;
@@ -36,7 +29,8 @@ header {
   bottom: 0;
   left: 0;
   right: 0;
-  min-height: 30vh;
+  height: 0;
+  overflow: hidden;
   font-family: 'Press Start 2P', monospace;
   padding: 10px;
   border-radius: 2px;
@@ -62,7 +56,7 @@ header {
   border-left: 2px solid white
 }
 
-.form {
+#form {
   background: rgba(24, 24, 24, 0.856);
   display: flex;
   align-items: center;
@@ -74,9 +68,8 @@ header {
   min-height: 30vh;
 }
 
-.from input {
+#form input {
   background: #4b4b4b;
   color: white;
   box-shadow: #4b4b4b 1px 1px 0;
-  
 }
