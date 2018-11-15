@@ -3,6 +3,9 @@ var socket = io('/combat');
 socket.on('GAME_DATA', function(game) {
   playScreen.gameData = Object.assign({}, game);
   bootScreen.instance.scene.start('playScreen');
+
+  var currentPlayer = game.players[socket.id];
+  GuiManager.init(currentPlayer);
 });
 
 $('#form').on('submit', function(event) {

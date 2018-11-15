@@ -47,7 +47,7 @@ header {
 .GUI li.active {
   color: rgb(199, 199, 199);
   padding-left: 2px;
-  list-style-image: url('./assets/img/hand-select.png');
+  list-style-image: url('../img/hand-select.png');
 }
 .GUI .left {
   border-right: 2px solid white

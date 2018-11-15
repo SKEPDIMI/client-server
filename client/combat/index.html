@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="./assets/stylesheets/index.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.15/howler.core.min.js"></script>
   <script
   src="https://code.jquery.com/jquery-3.3.1.min.js"
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
   crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
   <script src="./js/phaser.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <title>Combat</title>
@@ -24,11 +26,20 @@
       <input name="name" type="text" id="name-input">
     </form>
     <div class="GUI">
-      
+      <div>
+        <h1 class="health">HP ...</h1>
+      </div>
+      <div>
+        <ul id="gui-selection-list"></ul>
+      </div>
+      <div>
+        
+      </div>
     </div>
   </div>
 </body>
 <script src="./js/index.js"></script>
+<script src="./js/game/guiManager.js"></script>
 <script src="./js/game/helpers.js"></script>
 <script src="./js/game/entities/bat.js"></script>
 <script src="./js/game/entities/dwarf.js"></script>
