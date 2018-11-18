@@ -3,7 +3,6 @@ function Dwarf(gameInstance, {name, entityData}, { x, y }) {
   this.sprite = gameInstance.add.sprite(x, y, 'dwarf')
     .setDisplaySize(120, 180)
     .play('dwarf-idle');
-    console.log('sprite', this.sprite);
 
   // NAME TAG OVER THE USER
    this.nameTag = gameInstance.add.text(
