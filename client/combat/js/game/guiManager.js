@@ -2,8 +2,12 @@ var moveCursorSound = new Howl({ src: ['./assets/audio/cursor-move.mp3']});
 var selectCursorSound = new Howl({ src: ['./assets/audio/cursor-select.mp3']});
 
 var GuiManager = {
-  enabled: false,
-  // tracking position of cursor
+  hidden: true,
+  selectionMode: null,
+  // TARGET SELECTION:
+  currentTargetSide: 0,
+  currentTargetIndex: 0,
+  // ACTION SELECTION: tracking position of cursor
   currentCursorIndex: 0,
   currentScreen: 'root',
   // adding delay between cursor movements
@@ -26,10 +30,10 @@ var GuiManager = {
 }
 
 GuiManager.init = function(currentPlayer) {
-  this.enabled = true;
   this.updateGuiView(currentPlayer);
 
   document.addEventListener('keydown', function(event) {
+    if (GuiManager.hidden) return;
     if (Date.now() - GuiManager.cursorMoveDelta <= GuiManager.cursorMinWait) {
       return 
     }
@@ -42,6 +46,12 @@ GuiManager.init = function(currentPlayer) {
       case 'ArrowDown':
         GuiManager.moveCursor('down');
         break;
+      case 'ArrowLeft':
+        GuiManager.moveCursor('left');
+        break;
+      case 'ArrowRight':
+        GuiManager.moveCursor('right');
+        break;
       case 'Enter':
         GuiManager.selectOption();
         break;
@@ -50,39 +60,80 @@ GuiManager.init = function(currentPlayer) {
 }
 
 GuiManager.moveCursor = function (direction) {
-  moveCursorSound.play();
 
-  var list = $('#gui-selection-list');
-  var children = list.children();
-  var activeChild = $('#gui-selection-list .active');
-  var nextIndex = null;
-  var len = this.guiMasterObject[this.currentScreen].length
+  if (this.selectionMode === 'TARGET')
+  {
+    var h = null;
+    var side = null;
 
-  switch(direction.toLowerCase()) {
-    case 'up':
-      nextIndex = this.currentCursorIndex - 1;
-      if (nextIndex < 0) {
-        nextIndex = len-1
-      }
-      activeChild.removeClass('active');
-      $(children[nextIndex]).addClass('active');
-      
-      this.currentCursorIndex = nextIndex;
-      break;
-    case 'down':
-      nextIndex = this.currentCursorIndex + 1;
-      if (nextIndex >= len) {
-        nextIndex = 0
-      }
-      break;
-    default:
+    switch(direction.toLowerCase()) {
+      case 'up':
+        h = 'up'
+        break;
+      case 'down':
+        h = 'down'
+        break;
+      case 'left':
+        side = 0
+        break;
+      case 'right':
+        side = 1;
+        break;
+      default:
+        return
+    }
+
+    if (h) {
+      this.currentTargetIndex = GuiManager.nextTargetIndexInLine(h);
+    } else if (typeof side == 'number') {
+      this.currentTargetSide = side
+      this.currentTargetIndex = GuiManager.nextTargetIndexInLine();
+    } else {
       return
-  }
+    }
+    moveCursorSound.play();
 
-  activeChild.removeClass('active');
-  $(children[nextIndex]).addClass('active');
-  
-  this.currentCursorIndex = nextIndex;
+    var settings = {
+      index: this.currentTargetIndex,
+      side: this.currentTargetSide
+    }
+
+    playScreen.moveTargetHandTo(settings);
+  }
+  else if (this.selectionMode === 'ACTION')
+  {
+    var list = $('#gui-selection-list');
+    var children = list.children();
+    var activeChild = $('#gui-selection-list .active');
+    var nextIndex = null;
+    var len = this.guiMasterObject[this.currentScreen].length
+
+    switch(direction.toLowerCase()) {
+      case 'up':
+        nextIndex = this.currentCursorIndex - 1;
+        if (nextIndex < 0) {
+          nextIndex = len-1
+        }
+        activeChild.removeClass('active');
+        $(children[nextIndex]).addClass('active');
+        
+        this.currentCursorIndex = nextIndex;
+        break;
+      case 'down':
+        nextIndex = this.currentCursorIndex + 1;
+        if (nextIndex >= len) {
+          nextIndex = 0
+        }
+        break;
+      default:
+        return
+    }
+
+    activeChild.removeClass('active');
+    $(children[nextIndex]).addClass('active');
+    
+    this.currentCursorIndex = nextIndex;
+  }
 }
 
 GuiManager.selectOption = function() {
@@ -161,6 +212,12 @@ GuiManager.generateObjectGui = function({ attacks }) {
   // PARSE ACTIONS
 }
 
+GuiManager.selectTarget = function() {
+  $('.GUI').addClass('disabled');
+  this.hidden = false;
+  this.selectionMode = 'TARGET';
+}
+
 var chainRemovalAnimation = function(toAnimate, cb, ix = 0){
   var current = toAnimate[ix];
   if(current){
@@ -174,4 +231,67 @@ var chainRemovalAnimation = function(toAnimate, cb, ix = 0){
   if(!current && cb) {
     cb();
   }
+};
+
+// FIND THE INDEX OF THE NEXT TARGET IN
+// THE GAME'S PLACING LINE DEPENDING ON
+// THE DIRECTION AND SIDE
+// example:
+/*
+  playScreen.playerPlacingLine = {
+    0: {name: 'john'},
+    1: {name: 'doe'},
+    2: {name: 'bob'},
+    3: null,
+  }
+  this.currentTargetIndex = 1;
+  this.currentTargetSide = 0; // this means playerPlacingLine
+
+  GuiManager.nextTargetIndexInLine('up'); // => 2
+  GuiManager.nextTargetIndexInLine('down'); // 0
+
+  this.currentTargetIndex = 0;
+  GuiManager.nextTargetIndexInLine('up'); // => 1
+  GuiManager.nextTargetIndexInLine('down'); // => 2
+*/
+
+GuiManager.nextTargetIndexInLine = function(direction) {
+  var currentTargetIndex = this.currentTargetIndex;
+  var currentTargetSide = this.currentTargetSide;
+
+  var placingLine = currentTargetSide == 0 
+    ? playScreen.playerPlacingLine
+    : currentTargetSide == 1
+      ? playScreen.enemyPlacingLine
+      : null
+    
+  var a = Object.values(placingLine);
+  
+  var j = currentTargetIndex;
+  if (direction == 'down') {
+    j++
+  } else if (direction == 'up') {
+    j--
+  }
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[j]) {
+      result = j
+      break
+    }
+
+    if (!direction || direction == 'down') {
+      j++
+    } else if (direction == 'up') {
+      j--
+    }
+    if (j > a.length-1) {
+      j = 0;
+    }
+    if (j<0) {
+      j = a.length-1
+    }
+  }
+
+  return j
 };
