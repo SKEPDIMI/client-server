@@ -75,7 +75,9 @@ const playScreen = {
         sprite = entity.sprite;
       }
     }
-    this.targetHand = playScreen.instance.add.image(sprite.x, sprite.y, 'selectTargetHand');
+    this.targetHand = playScreen.instance.add
+      .image(sprite.x, sprite.y, 'selectTargetHand')
+      .setDisplaySize(30, 30);
   },
   moveTargetHandTo(settings) {
     var newSide = settings.side;
@@ -86,15 +88,14 @@ const playScreen = {
         ? this.enemyPlacingLine
         : null;
 
-    console.log('newSide: ', newSide)
-    var { sprite } = placingLine[newIndex];
+    var mob = placingLine[newIndex];
 
-    if(!sprite) {
-      throw new Error('NO SPRITE AT PLACINGLINE[' + newIndex + ']');
+    if(!mob) {
+      throw new Error('NO MOB AT PLACINGLINE[' + newIndex + ']');
     }
 
-    this.targetHand.x = sprite.x
-    this.targetHand.y = sprite.y
+    this.targetHand.x = mob.sprite.x - mob.sprite.width
+    this.targetHand.y = mob.sprite.y
   },
   beginTurn(turn) {
     if (turn == 0) {
