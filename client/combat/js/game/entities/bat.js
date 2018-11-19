@@ -1,5 +1,5 @@
-function Bat(gameInstance, {name, entityData}, { x, y }) {
-  this.entityData = entityData;
+function Bat(gameInstance, { id, entity }, { x, y }) {
+  this.id = id;
   this.sprite = gameInstance.add.sprite(x, y, 'bat')
     .setDisplaySize(80, 80)
     .play('bat-idle');
@@ -9,7 +9,7 @@ function Bat(gameInstance, {name, entityData}, { x, y }) {
   this.nameTag = gameInstance.add.text(
     0,
     this.sprite.y - 80,
-    name,
+    entity.name,
     { fontSize: '17px', fill: '#fff', backgroundColor: '#0008' }
   );
 
