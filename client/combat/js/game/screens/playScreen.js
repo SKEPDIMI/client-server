@@ -1,43 +1,50 @@
 const playScreen = {
   key: 'playScreen',
+  targetHand: null,
+  playerPlacingLine: {
+    0: null,
+    1: null,
+    2: null,
+    3: null,
+  },
+  enemyPlacingLine: {
+    0: null,
+    1: null,
+    2: null,
+    3: null,
+  },
+  gameData: {},
   preload() {
     // set the instance for global use
     playScreen.instance = this;
     initAssets();
   },
   create() {
+    // add background
+    this.add.image(window.innerWidth/2, window.innerHeight/2, 'bg')
+      .setDisplaySize(window.innerWidth, window.innerHeight);
+
     // init animation
     for(id in entityTypes) {
       entityTypes[id].init(this);
     }
 
-    // add background
-    this.add.image(window.innerWidth/2, window.innerHeight/2, 'bg')
-      .setDisplaySize(window.innerWidth, window.innerHeight);
-
+    var name = $('#form #name-input').val();
+    socket.emit('JOIN_GAME', name);
+  },
+  gameDataReceived(gameData) {
     // spawn in game data
-    var gameData = playScreen.gameData;
+    playScreen.gameData = gameData;
     var players = gameData.players;
     var enemies = gameData.enemies;
-    var ents = Object.assign({}, players, enemies);
+    var allEntities = Object.assign({}, players, enemies);
 
-    for (id in ents) {
-      playScreen.spawn(ents[id]);
+    for (id in allEntities) {
+      playScreen.spawn(allEntities[id]);
     }
   },
-  update() {
-    let result = playScreen.getSpawnedDifference();
-
-    for(let id in result.spawn) {
-      // playScreen.spawn(result.spawn[id])
-    }
-    /*
-      for(let i in result.despawn) {
-        despawn(i, result.despawn[i])
-      }
-    */
-  },
-  spawn(entity) {
+  spawn(mob) {
+    let { entity } = mob;
     let { entityData } = entity;
 
     let selected = entityTypes[entityData.id];
@@ -46,58 +53,57 @@ const playScreen = {
       console.error('UNKNOWN ENTITY.ID: ', entityData.id);
     }
 
+    const placingLine = entityData.enemy
+      ? this.enemyPlacingLine
+      : this.playerPlacingLine
+    const emptySpotInLine = helpers.findEmptySpotInLine(placingLine);
+    const coordinatesInLine = helpers.coordinatesForEntity(entity, emptySpotInLine);
+
     let spawned = new selected(
       playScreen.instance,
-      entity,
-      helpers.coordinatesForEntity(entity),
+      mob,
+      coordinatesInLine,
     );
 
-    // playScreen.store.dispatch(getEntityType(id, spawned))
+    placingLine[emptySpotInLine] = spawned
   },
-  getSpawnedDifference() {
-    /*
-    let {
-      players,
-      enemies,
-    } = playScreen.state.gameReducer;
-    let {
-      enemyEntities,
-      playerEntities,
-    } = playScreen.state.phaserReducer;
+  addTargetHand() {
+    var sprite;
+    for(i in this.playerPlacingLine) {
+      var entity = this.playerPlacingLine[i];
+      if (entity) {
+        sprite = entity.sprite;
+      }
+    }
+    this.targetHand = playScreen.instance.add.image(sprite.x, sprite.y, 'selectTargetHand');
+  },
+  moveTargetHandTo(settings) {
+    var newSide = settings.side;
+    var newIndex = settings.index;
+    var placingLine = newSide == 0
+      ? this.playerPlacingLine
+      : newSide == 1
+        ? this.enemyPlacingLine
+        : null;
 
-    let inState = {
-      ...enemies,
-      ...players,
-    }
-    let spawned = {
-      ...playerEntities,
-      ...enemyEntities,
-    }
-    
-    let result = {
-      spawn: {},
-      despawn: {},
+    console.log('newSide: ', newSide)
+    var { sprite } = placingLine[newIndex];
+
+    if(!sprite) {
+      throw new Error('NO SPRITE AT PLACINGLINE[' + newIndex + ']');
     }
 
-    // if we have the same id's in spawned and state, return empty result
-    if(_.hasSameKeys(inState, spawned)) {
-      return result
+    this.targetHand.x = sprite.x
+    this.targetHand.y = sprite.y
+  },
+  beginTurn(turn) {
+    if (turn == 0) {
+      this.addTargetHand();
+      GuiManager.selectTarget();
+    } else if (turn == 1) {
+  
     }
-    
-    for(let id in inState) {
-        if (!_.has(spawned, id)) {
-            result.spawn[id] = inState[id]
-        }
-    }
-    for (let id in spawned) {
-        if (!_.has(inState, id)) {
-            result.despawn[id] = spawned[id]
-        }
-    }
-    return result
-    */
-    return { spawn: {} }
-  }
+  },
 }
 
 function initAssets() {
