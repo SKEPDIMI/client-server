@@ -128,6 +128,7 @@ GuiManager.moveCursor = function (direction) {
       default:
         return
     }
+    moveCursorSound.play();
 
     activeChild.removeClass('active');
     $(children[nextIndex]).addClass('active');
@@ -139,17 +140,40 @@ GuiManager.moveCursor = function (direction) {
 GuiManager.selectOption = function() {
   selectCursorSound.play();
 
-  var currentScreenObj = this.guiMasterObject[this.currentScreen];
-  var currentIndex = this.currentCursorIndex;
-  var selectedOption = currentScreenObj[currentIndex];
+  if (this.selectionMode === 'TARGET') {
+    this.setSelectionMode('ACTION');
+  } else if (this.selectionMode == 'ACTION') {
+    var currentScreenObj = this.guiMasterObject[this.currentScreen];
+    var currentIndex = this.currentCursorIndex;
+    var selectedOption = currentScreenObj[currentIndex];
 
-  // check if is available!
+    // check if is available!
 
-  // this is a route
-  if(selectedOption.to) {
-    this.transition(selectedOption.to);
-  } else if (selectedOption.select) {
+    // this is a route
+    if(selectedOption.to) {
+      this.transition(selectedOption.to);
+    } else if (selectedOption.select) {
 
+    }
+  }
+}
+GuiManager.setSelectionMode = function(selectionMode) {
+  if (selectionMode == 'TARGET')
+  {
+    playScreen.addTargetHand();
+    $('.GUI').addClass('disabled');
+    this.hidden = false;
+    this.selectionMode = 'TARGET';
+  }
+  else if (selectionMode == 'ACTION')
+  {
+    playScreen.removeTargetHand();
+    $('.GUI').removeClass('disabled');
+    this.hidden = false;
+    this.selectionMode = 'ACTION';
+  }
+  else if (selectionMode == 'HIDDEN') {
+    // HIDE GUI
   }
 }
 
@@ -173,7 +197,7 @@ GuiManager.updateGuiView = function (currentPlayer, screen = 'root') {
   var objectGui = this.guiMasterObject;
 
   for(i = 0; i < objectGui[screen].length; i++) {
-    let { title } = objectGui[screen][i];
+    var { title } = objectGui[screen][i];
     list.append(
       "<li>" + title + "</li>"
     )
@@ -188,13 +212,13 @@ GuiManager.updateGuiView = function (currentPlayer, screen = 'root') {
 
 GuiManager.generateObjectGui = function({ attacks }) {
   // PARSE ATTACKS
-  let parsedAttacks = [
+  var parsedAttacks = [
     { title: 'Back', to: 'root' }
   ];
 
   _.pairs(attacks).forEach(pair => {
-    let title = pair[0];
-    let attackInfo = pair[1];
+    var title = pair[0];
+    var attackInfo = pair[1];
 
     parsedAttacks.push({
       title,
@@ -210,12 +234,6 @@ GuiManager.generateObjectGui = function({ attacks }) {
   // PARSE POTIONS
 
   // PARSE ACTIONS
-}
-
-GuiManager.selectTarget = function() {
-  $('.GUI').addClass('disabled');
-  this.hidden = false;
-  this.selectionMode = 'TARGET';
 }
 
 var chainRemovalAnimation = function(toAnimate, cb, ix = 0){
@@ -274,7 +292,7 @@ GuiManager.nextTargetIndexInLine = function(direction) {
     j--
   }
 
-  for (let i = 0; i < a.length; i++) {
+  for (var i = 0; i < a.length; i++) {
     if (a[j]) {
       result = j
       break

@@ -79,6 +79,11 @@ const playScreen = {
       .image(sprite.x, sprite.y, 'selectTargetHand')
       .setDisplaySize(30, 30);
   },
+  removeTargetHand() {
+    if(this.targetHand) {
+      this.targetHand.destroy();
+    }
+  },
   moveTargetHandTo(settings) {
     var newSide = settings.side;
     var newIndex = settings.index;
@@ -99,8 +104,7 @@ const playScreen = {
   },
   beginTurn(turn) {
     if (turn == 0) {
-      this.addTargetHand();
-      GuiManager.selectTarget();
+      GuiManager.setSelectionMode('TARGET');
     } else if (turn == 1) {
   
     }
