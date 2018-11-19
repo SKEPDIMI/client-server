@@ -210,7 +210,8 @@ GuiManager.updateGuiView = function (currentPlayer, screen = 'root') {
   this.currentCursorIndex = 0
 }
 
-GuiManager.generateObjectGui = function({ attacks }) {
+GuiManager.generateObjectGui = function({entity}) {
+  var attacks = entity.attacks;
   // PARSE ATTACKS
   var parsedAttacks = [
     { title: 'Back', to: 'root' }
