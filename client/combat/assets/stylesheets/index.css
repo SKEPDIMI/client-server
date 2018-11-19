@@ -55,6 +55,17 @@ header {
 .GUI .right {
   border-left: 2px solid white
 }
+.GUI.disabled {
+  filter: blur(5px);
+}
+.GUI.disabled li {
+  color: grey;
+}
+.GUI.disabled li.active {
+  color: grey;
+  padding-left: 2px;
+  list-style-image: url('../img/hand-select.png');
+}
 
 #form {
   background: rgba(24, 24, 24, 0.856);
