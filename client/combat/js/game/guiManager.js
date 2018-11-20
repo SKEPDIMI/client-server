@@ -153,7 +153,22 @@ GuiManager.selectOption = function() {
     if(selectedOption.to) {
       this.transition(selectedOption.to);
     } else if (selectedOption.select) {
+      // remove and update index if player is removed / changed
+      var placingLine = this.currentTargetSide == 0
+        ? playScreen.playerPlacingLine
+        : this.currentTargetSide == 1
+          ? playScreen.enemyPlacingLine
+          : null
+      var target = placingLine[this.currentTargetIndex];
 
+      if (!target) throw new Error('This target has been removed from its placing line');
+
+      socket.emit('ACTION', {
+        target: { id: target.id},
+        action: selectedOption.select
+      });
+    } else {
+      console.log('UNKOWN OPTION ACTION');
     }
   }
 }
@@ -218,14 +233,14 @@ GuiManager.generateObjectGui = function({entity}) {
   ];
 
   _.pairs(attacks).forEach(pair => {
-    var title = pair[0];
+    var id = pair[0];
     var attackInfo = pair[1];
 
     parsedAttacks.push({
-      title,
+      title: attackInfo.title,
       select: {
         type: 'attack',
-        ...attackInfo,
+        id,
       },
     });
   });
