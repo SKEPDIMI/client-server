@@ -43,8 +43,8 @@ const playScreen = {
       playScreen.spawn(allEntities[id]);
     }
   },
-  spawn(mob) {
-    let { entity } = mob;
+  spawn(character) {
+    let { entity } = character;
     let { entityData } = entity;
 
     let selected = entityTypes[entityData.id];
@@ -61,7 +61,7 @@ const playScreen = {
 
     let spawned = new selected(
       playScreen.instance,
-      mob,
+      character,
       coordinatesInLine,
     );
 
@@ -93,14 +93,14 @@ const playScreen = {
         ? this.enemyPlacingLine
         : null;
 
-    var mob = placingLine[newIndex];
+    var character = placingLine[newIndex];
 
-    if(!mob) {
-      throw new Error('NO MOB AT PLACINGLINE[' + newIndex + ']');
+    if(!character) {
+      throw new Error('NO CHARACTER AT PLACINGLINE[' + newIndex + ']');
     }
 
-    this.targetHand.x = mob.sprite.x - mob.sprite.width
-    this.targetHand.y = mob.sprite.y
+    this.targetHand.x = character.sprite.x - character.sprite.width
+    this.targetHand.y = character.sprite.y
   },
   beginTurn(turn) {
     if (turn == 0) {
