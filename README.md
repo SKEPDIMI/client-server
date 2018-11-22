@@ -1,5 +1,7 @@
 # client-server
-client - server mechanics
+network based game mechanics mechanics
+
+using node, express and socket.io
 
 how to run:
 
