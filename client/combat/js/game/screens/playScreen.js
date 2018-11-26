@@ -35,14 +35,17 @@ const playScreen = {
   gameDataReceived(gameData) {
     // spawn in game data
     playScreen.gameData = gameData;
-    var players = gameData.players;
-    var enemies = gameData.enemies;
-    var allEntities = Object.assign({}, players, enemies);
+    var allCharacters = Object.assign({}, gameData.players, gameData.enemies);
 
-    for (id in allEntities) {
-      playScreen.spawn(allEntities[id]);
+    for (id in allCharacters) {
+      playScreen.spawn(allCharacters[id]);
     }
   },
+  // WILL TAKE CHARACTER DATA AND
+  // FIND EMPTY SPOT IN THEIR CHARACTER TYPE LINE,
+  // FIND THEIR COORDINATES IN THE LINE
+  // CREATE A CHARACTER OBJECT & SPRITE AT THIS COORDINATE
+  // SET THIS OBJECT AT THE PLACING LINE
   spawn(character) {
     let { entity } = character;
     let { entityData } = entity;
@@ -109,14 +112,70 @@ const playScreen = {
   
     }
   },
+  animateEvents(events, i = 0) {
+    if (!events.length) return
+    var event = events[i];
+    var nextEvent = events[i + 1];
+
+    animateAction(event)
+    .then(function() {
+      if(nextEvent) {
+        animateEvents(event, i+1);
+      } else {
+        console.log('DONE WITH ANIMATIONS LOOP!')
+      }
+    })
+  }
 }
 
+function animateAction(event) {
+  var allCharacters = getAllCharacters();
+  var action = event.action;
+  var characterId = event.character;
+  var receiverId = event.receiver;
+
+  var character = allCharacters.find(function(c) { return c.id === characterId});
+  var receiver = allCharacters.find(function(c) { return c.id === receiverId});
+
+  if (!character || !receiver) {
+    throw new Error('Missing character or receiver when animating')
+  }
+
+  return new Promise(function(resolve, reject) {
+    receiver.animate(action)
+    .then(function() {
+      console.log('sprite animated!')
+      resolve();
+    });
+  });
+}
+
+// WILL RETURN AN ARRAY OF ALL THE 
+// CHARACTERS IN THE ENEMY/PLAYER LINE
+function getAllCharacters() {
+  var r = [];
+  var p = playScreen.playerPlacingLine;
+  var e = playScreen.enemyPlacingLine;
+
+  for (id in p) {
+    if (p[id]) {
+      r.push(p[id])
+    }
+  }
+  for(id in e) {
+    if (p[id]) {
+      r.push(e[id])
+    }
+  }
+
+  return r
+}
 function initAssets() {
   var gameInstance = playScreen.instance;
 
   gameInstance.load.setBaseURL('http://localhost:5000');
   gameInstance.load.image('bg', 'public/assets/img/bg-forest.png');
   gameInstance.load.image('selectTargetHand', 'public/assets/img/select-target-hand.png');
-  gameInstance.load.spritesheet('dwarf', 'public/assets/img/characters/dwarf.png', { frameWidth: 32, frameHeight: 40 });
+  gameInstance.load.spritesheet('dwarf', 'public/assets/img/characters/dwarf.png', { frameWidth: 32, frameHeight: 31.7 });
   gameInstance.load.spritesheet('bat', 'public/assets/img/enemies/bat.png', { frameWidth: 32, frameHeight: 32 });
 }

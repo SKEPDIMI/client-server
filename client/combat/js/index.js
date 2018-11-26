@@ -16,7 +16,7 @@ socket.on('TURN', function(turn) {
   playScreen.beginTurn(turn);
 });
 socket.on('OUTCOME', function(events) {
-  console.log('HERE ARE THE EVENTS', events)
+  playScreen.animateEvents(events);
 });
 $('#form').on('submit', function(event) {
   event.preventDefault();
