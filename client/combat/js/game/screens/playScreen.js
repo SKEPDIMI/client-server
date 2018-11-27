@@ -142,11 +142,8 @@ function animateAction(event) {
   }
 
   return new Promise(function(resolve, reject) {
-    receiver.animate(action)
-    .then(function() {
-      console.log('sprite animated!')
-      resolve();
-    });
+    character.animate(action)
+    .then(resolve)
   });
 }
 
@@ -163,7 +160,7 @@ function getAllCharacters() {
     }
   }
   for(id in e) {
-    if (p[id]) {
+    if (e[id]) {
       r.push(e[id])
     }
   }
