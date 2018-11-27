@@ -83,7 +83,7 @@ Dwarf.prototype.animate = function(action) {
                 sprite.scaleX *= -1
                 sprite.play('dwarf-idle'); // go back to idle
               }, 300);
-            }, 800)
+            }, 1000)
           }, 300)
 
           timeline.onComplete = resolve
