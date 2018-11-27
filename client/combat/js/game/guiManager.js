@@ -55,6 +55,9 @@ GuiManager.init = function(currentPlayer) {
       case 'Enter':
         GuiManager.selectOption();
         break;
+      case 'Escape':
+        GuiManager.exitSelectionMode();
+        break;
     }
   })
 }
@@ -250,6 +253,14 @@ GuiManager.generateObjectGui = function({entity}) {
   // PARSE POTIONS
 
   // PARSE ACTIONS
+}
+
+GuiManager.exitSelectionMode = function() {
+  if (this.selectionMode == 'ACTION') {
+    selectCursorSound.play();
+    this.transition('root');
+    this.setSelectionMode('TARGET');
+  }
 }
 
 var chainRemovalAnimation = function(toAnimate, cb, ix = 0){
