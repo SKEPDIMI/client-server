@@ -35,7 +35,7 @@ Dwarf.init = function(gameInstance) {
     key: 'dwarf-attack',
     frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 21, end: 27 }),
     frameRate: 8,
-    repeat: -1,
+    repeat: 1,
   });
 
   return Dwarf
