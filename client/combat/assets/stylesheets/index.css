@@ -61,6 +61,10 @@ header {
 .GUI.disabled li {
   color: grey;
 }
+.GUI li.disabled {
+  color: rgb(151, 151, 151);
+}
+
 .GUI.disabled li.active {
   color: grey;
   padding-left: 2px;

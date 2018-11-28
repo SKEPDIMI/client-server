@@ -1,4 +1,5 @@
 function Bat(gameInstance, { id, entity }, { x, y }) {
+  this.enemy = true;
   this.id = id;
   this.sprite = gameInstance.add.sprite(x, y, 'bat')
     .setDisplaySize(80, 80)

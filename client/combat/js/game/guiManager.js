@@ -16,9 +16,6 @@ var GuiManager = {
 
   guiMasterObject: {
     root: [
-      { title: 'Attacks', to: 'attacks' },
-      { title: 'Potions', to: 'potions' },
-      { title: 'Actions', to: 'actions' }
     ],
     potions: [
     ],
@@ -105,32 +102,53 @@ GuiManager.moveCursor = function (direction) {
   }
   else if (this.selectionMode === 'ACTION')
   {
-    var list = $('#gui-selection-list');
-    var children = list.children();
-    var activeChild = $('#gui-selection-list .active');
-    var nextIndex = null;
-    var len = this.guiMasterObject[this.currentScreen].length
+    var options = this.guiMasterObject[this.currentScreen]
+    var currentIndex = this.currentCursorIndex;
+    var nextIndex = currentIndex;
+    var j = currentIndex;
 
-    switch(direction.toLowerCase()) {
-      case 'up':
-        nextIndex = this.currentCursorIndex - 1;
-        if (nextIndex < 0) {
-          nextIndex = len-1
-        }
-        activeChild.removeClass('active');
-        $(children[nextIndex]).addClass('active');
-        
-        this.currentCursorIndex = nextIndex;
-        break;
-      case 'down':
-        nextIndex = this.currentCursorIndex + 1;
-        if (nextIndex >= len) {
-          nextIndex = 0
-        }
-        break;
-      default:
-        return
+    if (direction == 'up') {
+      if (currentIndex > 0) {
+        j--
+      } else {
+        j = options.length - 1
+      }
+    } else if (direction == 'down') {
+      if (currentIndex < options.length-1) {
+        j++
+      } else {
+        j = 0
+      }
+    } else {
+      return
     }
+
+    // select the next option that is not disabled in the screen
+    for (var i = 0; i < options.length; i++) {
+      if (!options[j].disabled) {
+        nextIndex = j
+        break
+      }
+  
+      if (!direction || direction == 'down') {
+        j++
+      } else if (direction == 'up') {
+        j--
+      }
+      if (j > options.length - 1) {
+        j = 0;
+      }
+      if (j < 0) {
+        j = options.length - 1
+      }
+    }
+
+    if (nextIndex == currentIndex) {
+      return
+    }
+    var children = $('#gui-selection-list').children();
+    var activeChild = $('#gui-selection-list .active');
+
     moveCursorSound.play();
 
     activeChild.removeClass('active');
@@ -189,6 +207,8 @@ GuiManager.setSelectionMode = function(selectionMode) {
     $('.GUI').removeClass('disabled');
     this.hidden = false;
     this.selectionMode = 'ACTION';
+
+    this.transition('root');
   }
   else if (selectionMode == 'HIDDEN') {
     // HIDE GUI
@@ -209,15 +229,17 @@ GuiManager.transition = function(screenName) {
 }
 
 GuiManager.updateGuiView = function (currentPlayer, screen = 'root') {
-  if(currentPlayer) GuiManager.generateObjectGui(currentPlayer);
+  GuiManager.generateObjectGui(currentPlayer);
 
   var list = $('#gui-selection-list');
   var objectGui = this.guiMasterObject;
 
   for(i = 0; i < objectGui[screen].length; i++) {
-    var { title } = objectGui[screen][i];
+    var { title, disabled } = objectGui[screen][i];
+    console.log(title + ' is ' + disabled ? '' : 'not ' + 'disabled')
+    var className = disabled ? 'disabled' : ''
     list.append(
-      "<li>" + title + "</li>"
+      "<li class='" + className + "'>" + title + "</li>"
     )
   }
 
@@ -228,37 +250,60 @@ GuiManager.updateGuiView = function (currentPlayer, screen = 'root') {
   this.currentCursorIndex = 0
 }
 
-GuiManager.generateObjectGui = function({entity}) {
-  var attacks = entity.attacks;
-  // PARSE ATTACKS
-  var parsedAttacks = [
-    { title: 'Back', to: 'root' }
-  ];
+GuiManager.generateObjectGui = function(currentPlayer) {
+  var selectedTargetCharacter = this.currentTargetSide == 0
+    ? playScreen.playerPlacingLine[this.currentTargetIndex]
+    : this.currentTargetSide == 1
+      ? playScreen.enemyPlacingLine[this.currentTargetIndex]
+      : null
 
-  _.pairs(attacks).forEach(pair => {
-    var id = pair[0];
-    var attackInfo = pair[1];
+  if (!selectedTargetCharacter) {
+    throw new Error('unknown selected target!')
+  }
 
-    parsedAttacks.push({
-      title: attackInfo.title,
-      select: {
-        type: 'attack',
-        id,
-      },
+  // PARSE ROOT
+  var parsedRoot = [
+    { title: 'Attacks', to: 'attacks', disabled: true },
+    { title: 'Potions', to: 'potions', disabled: true },
+    { title: 'Actions', to: 'actions', disabled: true }
+  ]
+  // enable options based on external conditions
+  if (selectedTargetCharacter.enemy) {
+    delete parsedRoot[0].disabled
+  }
+  // push them to the guiMasterObject
+  this.guiMasterObject.root = parsedRoot
+
+  if (currentPlayer) {
+    // PARSE ATTACKS
+    var attacks = currentPlayer.entity.attacks;
+    var parsedAttacks = [
+      { title: 'Back', to: 'root', disabled: false }
+    ];
+
+    _.pairs(attacks).forEach(pair => {
+      var id = pair[0];
+      var attackInfo = pair[1];
+
+      parsedAttacks.push({
+        title: attackInfo.title,
+        select: {
+          type: 'attack',
+          id,
+        },
+      });
     });
-  });
 
-  this.guiMasterObject.attacks = parsedAttacks;
+    this.guiMasterObject.attacks = parsedAttacks;
+    // PARSE POTIONS
 
-  // PARSE POTIONS
-
-  // PARSE ACTIONS
+    // PARSE ACTIONS
+  }
 }
 
 GuiManager.exitSelectionMode = function() {
   if (this.selectionMode == 'ACTION') {
     selectCursorSound.play();
-    this.transition('root');
     this.setSelectionMode('TARGET');
   }
 }
