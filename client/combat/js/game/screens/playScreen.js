@@ -13,7 +13,6 @@ const playScreen = {
     2: null,
     3: null,
   },
-  gameData: {},
   preload() {
     // set the instance for global use
     playScreen.instance = this;
@@ -34,7 +33,6 @@ const playScreen = {
   },
   gameDataReceived(gameData) {
     // spawn in game data
-    playScreen.gameData = gameData;
     var allCharacters = Object.assign({}, gameData.players, gameData.enemies);
 
     for (id in allCharacters) {
