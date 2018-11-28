@@ -84,3 +84,18 @@ header {
   color: white;
   box-shadow: #4b4b4b 1px 1px 0;
 }
+
+.error-container {
+  background-color: rgb(255, 52, 52);
+  color: white;
+  border-radius: 10px;
+  position: absolute;
+
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+
+  cursor: pointer;
+
+  z-index: 200;
+}

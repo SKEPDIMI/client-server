@@ -18,6 +18,15 @@ socket.on('TURN', function(turn) {
 socket.on('OUTCOME', function(events) {
   playScreen.animateEvents(events);
 });
+
+socket.on('ERROR', function(error) {
+  $('#root')
+    .append('<div class="error-container">' + error + '</div>')
+    .click(function() {
+      $('.error-container').remove();
+    });
+});
+
 $('#form').on('submit', function(event) {
   event.preventDefault();
   $(this).animate(
