@@ -37,6 +37,12 @@ Dwarf.init = function(gameInstance) {
     frameRate: 8,
     repeat: 1,
   });
+  gameInstance.anims.create({
+    key: 'dwarf-harm',
+    frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 40, end: 44 }),
+    frameRate: 4,
+    repeat: 1,
+  });
 
   return Dwarf
 }
@@ -46,51 +52,21 @@ Dwarf.init = function(gameInstance) {
 // requires >= 32 lines. Probably would be a good idea
 // to put separate animations in separate files...
 
-Dwarf.prototype.animate = function(action) {
+Dwarf.prototype.animate = function(role, action) {
   var sprite = this.sprite;
-  var timeline = playScreen.instance.tweens.createTimeline();
-  var initialPosition = {x: sprite.x, y: sprite.y};
 
   return new Promise(function(resolve) {
     switch(action.type.toLowerCase()) {
       case 'attack':
-        if (action.id === 'attack-0') {
-          // MOVE FORWARD
-          timeline.add({
-            targets: sprite,
-            x: 300,
-            duration: 300,
-          });
-          // IDLE
-          timeline.add({
-            targets: sprite,
-            x: 300,
-            duration: 1000,
-          });
-          // MOVE BACK
-          timeline.add({
-            targets: sprite,
-            x: initialPosition.x,
-            duration: 300,
-          });
-          sprite.play('dwarf-walk'); 
-          setTimeout(function() { // walk for 300m
-            sprite.play('dwarf-attack'); 
-            setTimeout(function() { // attack for 800m
-              sprite.scaleX *= -1
-              sprite.play('dwarf-walk');
-              setTimeout(function() { // walk for 300m
-                sprite.scaleX *= -1
-                sprite.play('dwarf-idle'); // go back to idle
-              }, 300);
-            }, 1000)
-          }, 300)
-
-          timeline.onComplete = resolve
-          timeline.play();
+        if(role == 'agent') {
+          if (action.id === 'attack-0') {
+            
+          } else {
+            console.error('UNKNOWN ACTION ID WHEN ANIMATING');
+            resolve();
+          }
         } else {
-          console.error('UNKNOWN ACTION ID WHEN ANIMATING');
-          resolve();
+          sprite.play('dwarf-damage');
         }
         break;
       default:
@@ -99,3 +75,5 @@ Dwarf.prototype.animate = function(action) {
     }
   });
 }
+
+entityTypes[0] = Dwarf

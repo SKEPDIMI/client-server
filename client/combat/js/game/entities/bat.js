@@ -1,4 +1,4 @@
-function Bat(gameInstance, { id, entity }, { x, y }) {
+var Bat = function (gameInstance, { id, entity }, { x, y }) {
   this.enemy = true;
   this.id = id;
   this.sprite = gameInstance.add.sprite(x, y, 'bat')
@@ -26,6 +26,14 @@ Bat.init = function(gameInstance) {
     frameRate: 15,
     repeat: -1
   });
+  gameInstance.anims.create({
+    key: 'bat-harm',
+    frames: gameInstance.anims.generateFrameNumbers('bat', { start: 73, end: 75 }),
+    frameRate: 15,
+    repeat: -1
+  });
 
   return Bat
 }
+
+entityTypes[1] = Bat
