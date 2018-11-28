@@ -127,21 +127,13 @@ const playScreen = {
 }
 
 function animateAction(event) {
-  var allCharacters = getAllCharacters();
   var action = event.action;
-  var characterId = event.character;
-  var receiverId = event.receiver;
-
-  var character = allCharacters.find(function(c) { return c.id === characterId});
-  var receiver = allCharacters.find(function(c) { return c.id === receiverId});
-
-  if (!character || !receiver) {
-    throw new Error('Missing character or receiver when animating')
-  }
-
+  var animations = ANIMATIONS[action.type];
+  animation = animations[action.id];
+  
   return new Promise(function(resolve, reject) {
-    character.animate(action)
-    .then(resolve)
+    animation(event)
+    .then(resolve);
   });
 }
 

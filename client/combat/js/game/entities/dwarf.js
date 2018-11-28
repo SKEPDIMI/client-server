@@ -47,33 +47,4 @@ Dwarf.init = function(gameInstance) {
   return Dwarf
 }
 
-// WILL ANIMATE THE CHARACTER SPRITE AND RESOLVE
-// Note: The function to run a single, simple animation
-// requires >= 32 lines. Probably would be a good idea
-// to put separate animations in separate files...
-
-Dwarf.prototype.animate = function(role, action) {
-  var sprite = this.sprite;
-
-  return new Promise(function(resolve) {
-    switch(action.type.toLowerCase()) {
-      case 'attack':
-        if(role == 'agent') {
-          if (action.id === 'attack-0') {
-            
-          } else {
-            console.error('UNKNOWN ACTION ID WHEN ANIMATING');
-            resolve();
-          }
-        } else {
-          sprite.play('dwarf-damage');
-        }
-        break;
-      default:
-        console.error('UNKOWN ACTION.TYPE WHEN ANIMATING');
-        resolve();
-    }
-  });
-}
-
 entityTypes[0] = Dwarf
