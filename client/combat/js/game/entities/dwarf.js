@@ -1,23 +1,26 @@
 function Dwarf(gameInstance, character, { x, y }) {
-  this.id = character.id;
-  this.entity = character.entity;
-  this.entityData = character.entityData;
-
-  this.sprite = gameInstance.add.sprite(x, y, 'dwarf')
-    .setDisplaySize(120, 180)
-    .play('dwarf-idle');
-
-  // NAME TAG OVER THE USER
-   this.nameTag = gameInstance.add.text(
-    0,
-    this.sprite.y - this.sprite.height - 20,
+  var sprite = gameInstance.add.sprite(x, y, 'dwarf').setDisplaySize(120, 180).play('dwarf-idle');
+  
+  var nameTag = gameInstance.add.text(
+    0, // x coordinate is set below
+    sprite.y - sprite.height - 20,
     character.entity.name,
     { fontSize: '17px', fill: '#fff', backgroundColor: '#0008' }
   );
+  nameTag.x = sprite.x - nameTag.width/2
 
-  this.nameTag.x = this.sprite.x - this.nameTag.width/2
+  const state = {
+    id: character.id,
+    entity: character.entity,
+    entityData: character.entityData,
+    sprite,
+    nameTag,
+  }
 
-  return this
+  return Object.assign(
+    {},
+    state
+  )
 }
 
 Dwarf.init = function(gameInstance) {

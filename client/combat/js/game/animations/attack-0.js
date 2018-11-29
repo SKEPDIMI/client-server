@@ -39,9 +39,7 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
       duration: 300,
     });
 
-    var eventChain = new EventChain();
-
-    eventChain
+    EventChain()
     .then(function() {
       agentSprite.play('dwarf-walk'); 
     })

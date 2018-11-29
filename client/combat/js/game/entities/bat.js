@@ -1,42 +1,49 @@
 var Bat = function (gameInstance, character, { x, y }) {
-  this.enemy = true;
-  this.id = character.id;
-  this.entity = character.entity;
-  this.entityData = character.entityData;
-  
-  this.sprite = gameInstance.add.sprite(x, y, 'bat')
+  var sprite = gameInstance.add.sprite(x, y, 'bat')
     .setDisplaySize(80, 80)
     .play('bat-idle');
 
   // NAME TAG OVER THE USER
-
-  this.nameTag = gameInstance.add.text(
+  var nameTag = gameInstance.add.text(
     0,
-    this.sprite.y - 80,
+    sprite.y - 80,
     character.entity.name,
     { fontSize: '17px', fill: '#fff', backgroundColor: '#0008' }
   );
-
-  this.nameTag.x = this.sprite.x - this.nameTag.width/2
+  nameTag.x = sprite.x - nameTag.width/2
 
   // HEALTH BAR
-  var graphics = gameInstance.add.graphics(this.nameTag.x, this.nameTag.y);
-  var healthWidth = (character.entity.health/character.entity.maxHealth) * this.nameTag.width;
+  var graphics = gameInstance.add.graphics(nameTag.x, nameTag.y);
+  var healthWidth = (character.entity.health/character.entity.maxHealth) * nameTag.width;
 
-  this.healthBar = graphics
+  var healthBar = graphics
     .fillStyle(0x56F33E)
-    .fillRect(this.nameTag.x, this.nameTag.y + this.nameTag.height, healthWidth, 2);
+    .fillRect(nameTag.x, nameTag.y + nameTag.height, healthWidth, 2);
 
-  this.healthBarBackground = graphics
+  var healthBarBackground = graphics
     .fillStyle(0xBEBEBE)
     .fillRect(
-      this.nameTag.x + healthWidth,
-      this.nameTag.y + this.nameTag.height,
-      this.nameTag.width - healthWidth,
+      nameTag.x + healthWidth,
+      nameTag.y + nameTag.height,
+      nameTag.width - healthWidth,
       2
     );
 
-  return this
+  var state = {
+    enemy: true,
+    id: character.id,
+    entity: character.entity,
+    entityData: character.entityData,
+    sprite,
+    nameTag,
+    healthBar,
+    healthBarBackground,
+  }
+
+  return Object.assign(
+    {},
+    state,
+  )
 }
 
 Bat.init = function(gameInstance) {

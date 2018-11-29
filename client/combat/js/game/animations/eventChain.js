@@ -2,64 +2,76 @@
 // with tween timelines
 
 function EventChain() {
-  this.chain = []
-  this.timeline = null
-  this.cb = function() {}
-}
-EventChain.prototype.setTimeline = function(timeline) {
-  if (timeline) this.timeline = timeline
-
-  return this
-}
-EventChain.prototype.onDone = function(cb) {
-  if (typeof cb == 'function') {
-    this.cb = cb
+  var state = {
+    chain: [],
+    timeline: null,
+    cb: function() {}
   }
 
-  return this
-}
-EventChain.prototype.wait = function(n) {
-  this.chain.push(n);
-  return this
-}
-EventChain.prototype.then = function(f) {
-  this.chain.push(f);
-  return this
-}
-EventChain.prototype.play = function(i = 0) {
-  var self = this;
-
-  if (self.timeline) {
-    self.timeline.play()
-    self.timeline = false
+  state.setTimeline = function(timeline) {
+    if (timeline) state.timeline = timeline
+  
+    return state
   }
-
-  var event = self.chain[i];
-  var nextEvent = self.chain[i + 1]
-
-  if (typeof event == 'number') {
-    setTimeout(function() {
-      if (nextEvent) {
-        self.play(i+1)
-      } else {
-        self.end();
-      }
-    }, event);
-  } else if (typeof event == 'function') {
-    event();
-
-    if (nextEvent) {
-      self.play(i+1)
-    } else {
-      self.end();
+  state.onDone = function(cb) {
+    if (typeof cb == 'function') {
+      state.cb = cb
     }
-  } else {
-    throw Error('unknown event at ', i)
+
+    return state
+  }
+  state.wait = function(n) {
+    if (typeof n == 'number') {
+      state.chain.push(n);
+    }
+
+    return state
+  }
+  state.then = function(f) {
+    if (typeof f == 'function') {
+      state.chain.push(f);
+    }
+
+    return state
+  }
+  state.play = function(i = 0) {
+    if (state.timeline) {
+      state.timeline.play()
+      state.timeline = false
+    }
+  
+    var event = state.chain[i];
+    var nextEvent = state.chain[i + 1]
+  
+    if (typeof event == 'number') {
+      setTimeout(function() {
+        if (nextEvent) {
+          state.play(i+1)
+        } else {
+          state.end();
+        }
+      }, event);
+    } else if (typeof event == 'function') {
+      event();
+  
+      if (nextEvent) {
+        state.play(i+1)
+      } else {
+        state.end();
+      }
+    } else {
+      throw Error('unknown event at ', i)
+    }
+  
+    return state
+  }
+  state.end = function() {
+    state.cb();
+    state.chain = [];
   }
 
-  return this
-}
-EventChain.prototype.end = function() {
-  this.cb();
-  this.chain = [];
+  return Object.assign(
+    {},
+    state
+  )
 }
