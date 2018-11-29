@@ -1,4 +1,8 @@
 ANIMATIONS['attack']['attack-0'] = function(event) {
+  var action = event.action;
+  var damage = action.outcome.damage;
+  var crit = action.outcome.criticalStrike;
+
   var allCharacters = getAllCharacters();
   var agentId = event.character;
   var receiverId = event.receiver;
@@ -13,10 +17,12 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
   var agentSprite = agent.sprite;
   var receiverSprite = receiver.sprite;
 
-  var timeline = playScreen.instance.tweens.createTimeline();
-  var initialPosition = {x: agentSprite.x, y: agentSprite.y};
-
   return new Promise(function(resolve) {
+    var timeline = playScreen.instance.tweens.createTimeline();
+    var initialPosition = {x: agentSprite.x, y: agentSprite.y};
+
+    var damageText;
+
     timeline.add({
       targets: agentSprite,
       x: 300,
@@ -33,24 +39,59 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
       duration: 300,
     });
 
-    // ok... change the play names, not all entities will have the same!
-    agentSprite.play('dwarf-walk'); 
-    setTimeout(function() { // walk for 300m
+    var eventChain = new EventChain();
+
+    eventChain
+    .then(function() {
+      agentSprite.play('dwarf-walk'); 
+    })
+    .wait(300)
+    .then(function() {
       receiverSprite.play('bat-harm');
-      agentSprite.play('dwarf-attack'); 
-      setTimeout(function() { // attack for 800m
-        agentSprite.scaleX *= -1
-        agentSprite.play('dwarf-walk');
-        setTimeout(function() { // walk for 300m
-          agentSprite.scaleX *= -1
+      agentSprite.play('dwarf-attack');
+    })
+    .wait(100)
+    .then(function() {
+      var textHeight = 18 // this should change based on the strength of the attack
 
-          receiverSprite.play('bat-idle');
-          agentSprite.play('dwarf-idle'); // go back to idle
-        }, 300);
-      }, 1000)
-    }, 300)
+      damageText = playScreen.instance.add.text(
+        receiverSprite.x - receiverSprite.width - 20,
+        receiverSprite.y - receiverSprite.height - 20,
+        'dmg: ' + damage + ' - crit: ' + crit + '!',
+        { fontSize: textHeight+'px', fill: '#fff' }
+      );
+    })
+    .wait(900)
+    .then(function() {
+      agentSprite.scaleX *= -1
+      agentSprite.play('dwarf-walk');
+    })
+    .wait(300)
+    .then(function() { // walk for 300m
+      agentSprite.scaleX *= -1
 
-    timeline.onComplete = resolve
-    timeline.play();
+      receiverSprite.play('bat-idle');
+      agentSprite.play('dwarf-idle'); // go back to idle
+    })
+    .wait(500)
+    .then(function() {
+      playScreen.instance.add.tween({
+        targets: damageText,
+        ease: 'Sine.easeInOut',
+        duration: 500,
+        delay: 0,
+        y: damageText.y - 20,
+        alpha: {
+          getStart: () => 1,
+          getEnd: () => 0
+        },
+        onComplete: function() {
+          damageText.destroy();
+        }
+      });
+    })
+    .setTimeline(timeline)
+    .onDone(resolve)
+    .play();
   });
 }
