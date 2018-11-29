@@ -16,6 +16,23 @@ var Bat = function (gameInstance, { id, entity }, { x, y }) {
 
   this.nameTag.x = this.sprite.x - this.nameTag.width/2
 
+  // HEALTH BAR
+  var graphics = gameInstance.add.graphics(this.nameTag.x, this.nameTag.y);
+  var healthWidth = (entity.health/entity.maxHealth) * this.nameTag.width;
+
+  this.healthBar = graphics
+    .fillStyle(0x56F33E)
+    .fillRect(this.nameTag.x, this.nameTag.y + this.nameTag.height, healthWidth, 2);
+
+  this.healthBarBackground = graphics
+    .fillStyle(0xBEBEBE)
+    .fillRect(
+      this.nameTag.x + healthWidth,
+      this.nameTag.y + this.nameTag.height,
+      this.nameTag.width - healthWidth,
+      2
+    );
+
   return this
 }
 
