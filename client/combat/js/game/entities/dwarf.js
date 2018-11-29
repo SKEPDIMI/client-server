@@ -1,5 +1,7 @@
-function Dwarf(gameInstance, { id, entity }, { x, y }) {
-  this.id = id;
+function Dwarf(gameInstance, character, { x, y }) {
+  this.id = character.id;
+  this.entity = character.entity;
+  this.entityData = character.entityData;
 
   this.sprite = gameInstance.add.sprite(x, y, 'dwarf')
     .setDisplaySize(120, 180)
@@ -9,7 +11,7 @@ function Dwarf(gameInstance, { id, entity }, { x, y }) {
    this.nameTag = gameInstance.add.text(
     0,
     this.sprite.y - this.sprite.height - 20,
-    entity.name,
+    character.entity.name,
     { fontSize: '17px', fill: '#fff', backgroundColor: '#0008' }
   );
 

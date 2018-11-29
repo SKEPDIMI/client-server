@@ -1,6 +1,9 @@
-var Bat = function (gameInstance, { id, entity }, { x, y }) {
+var Bat = function (gameInstance, character, { x, y }) {
   this.enemy = true;
-  this.id = id;
+  this.id = character.id;
+  this.entity = character.entity;
+  this.entityData = character.entityData;
+  
   this.sprite = gameInstance.add.sprite(x, y, 'bat')
     .setDisplaySize(80, 80)
     .play('bat-idle');
@@ -10,7 +13,7 @@ var Bat = function (gameInstance, { id, entity }, { x, y }) {
   this.nameTag = gameInstance.add.text(
     0,
     this.sprite.y - 80,
-    entity.name,
+    character.entity.name,
     { fontSize: '17px', fill: '#fff', backgroundColor: '#0008' }
   );
 
@@ -18,7 +21,7 @@ var Bat = function (gameInstance, { id, entity }, { x, y }) {
 
   // HEALTH BAR
   var graphics = gameInstance.add.graphics(this.nameTag.x, this.nameTag.y);
-  var healthWidth = (entity.health/entity.maxHealth) * this.nameTag.width;
+  var healthWidth = (character.entity.health/character.entity.maxHealth) * this.nameTag.width;
 
   this.healthBar = graphics
     .fillStyle(0x56F33E)
