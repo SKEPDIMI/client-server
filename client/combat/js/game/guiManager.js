@@ -2,7 +2,6 @@ var moveCursorSound = new Howl({ src: ['./assets/audio/cursor-move.mp3']});
 var selectCursorSound = new Howl({ src: ['./assets/audio/cursor-select.mp3']});
 
 var GuiManager = {
-  hidden: true,
   selectionMode: null,
   // TARGET SELECTION:
   currentTargetSide: 0,
@@ -30,7 +29,7 @@ GuiManager.init = function(currentPlayer) {
   this.updateGuiView(currentPlayer);
 
   document.addEventListener('keydown', function(event) {
-    if (GuiManager.hidden) return;
+    if (GuiManager.selectionMode == 'HIDDEN') return;
     if (Date.now() - GuiManager.cursorMoveDelta <= GuiManager.cursorMinWait) {
       return 
     }
@@ -60,7 +59,6 @@ GuiManager.init = function(currentPlayer) {
 }
 
 GuiManager.moveCursor = function (direction) {
-
   if (this.selectionMode === 'TARGET')
   {
     var h = null;
@@ -168,8 +166,9 @@ GuiManager.selectOption = function() {
     var currentIndex = this.currentCursorIndex;
     var selectedOption = currentScreenObj[currentIndex];
 
-    // check if is available!
-
+    // player is probably hacking...
+    if (selectedOption.disabled) return
+    
     // this is a route
     if(selectedOption.to) {
       this.transition(selectedOption.to);
@@ -188,31 +187,40 @@ GuiManager.selectOption = function() {
         target: { id: target.id},
         action: selectedOption.select
       });
+
+      this.setSelectionMode('HIDDEN');
     } else {
       console.log('UNKOWN OPTION ACTION');
     }
   }
 }
 GuiManager.setSelectionMode = function(selectionMode) {
+  if (selectionMode == 'HIDDEN') {
+    GuiManager.selectionMode = 'HIDDEN'
+    $('.GUI').addClass('hidden');
+
+    return GuiManager
+  }
+
   if (selectionMode == 'TARGET')
   {
     playScreen.addTargetHand();
-    $('.GUI').addClass('disabled');
-    this.hidden = false;
+
+    $('.GUI').addClass('disabled').removeClass('hidden');
     this.selectionMode = 'TARGET';
   }
   else if (selectionMode == 'ACTION')
   {
     playScreen.removeTargetHand();
-    $('.GUI').removeClass('disabled');
-    this.hidden = false;
-    this.selectionMode = 'ACTION';
-
     this.transition('root');
+
+    $('.GUI').removeClass('disabled').removeClass('hidden');
+    this.selectionMode = 'ACTION';
   }
-  else if (selectionMode == 'HIDDEN') {
-    // HIDE GUI
-  }
+
+  $('.GUI').animate({
+    height: '30vh',
+  })
 }
 
 GuiManager.transition = function(screenName) {

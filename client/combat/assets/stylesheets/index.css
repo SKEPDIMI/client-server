@@ -82,7 +82,9 @@ header {
   width: 0;
   height: 10px;
 }
-
+.GUI.hidden {
+  height: 0;
+}
 #form {
   background: rgba(24, 24, 24, 0.856);
   display: flex;
