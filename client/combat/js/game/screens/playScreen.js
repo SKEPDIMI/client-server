@@ -19,6 +19,12 @@ const playScreen = {
     initAssets();
   },
   create() {
+    this.anims.create({
+      key: 'smoke-puff',
+      frames: this.anims.generateFrameNumbers('smokeDisappear', { start: 0, end: 40 }),
+      frameRate: 70,
+      repeat: 1,
+    });
     // add background
     this.add.image(window.innerWidth/2, window.innerHeight/2, 'bg')
       .setDisplaySize(window.innerWidth, window.innerHeight);
@@ -36,7 +42,18 @@ const playScreen = {
     var allCharacters = Object.assign({}, gameData.players, gameData.enemies);
 
     for (id in allCharacters) {
-      playScreen.spawn(allCharacters[id]);
+      var character = allCharacters[id];
+
+      if (character.id === socket.id) {
+        h = character.entity.health;
+        m = character.entity.maxHealth;
+        p = h/m
+
+        $('.health').html('HP \n' + h + ' / ' + m);
+        $('#health-bar').animate({ width: (p*100)+'%'}, 500)
+      }
+
+      playScreen.spawn(character);
     }
   },
   // WILL TAKE CHARACTER DATA AND
@@ -60,7 +77,7 @@ const playScreen = {
     const emptySpotInLine = helpers.findEmptySpotInLine(placingLine);
     const coordinatesInLine = helpers.coordinatesForEntity(entity, emptySpotInLine);
 
-    let spawned = new selected(
+    let spawned = selected(
       playScreen.instance,
       character,
       coordinatesInLine,
@@ -74,6 +91,7 @@ const playScreen = {
       var entity = this.playerPlacingLine[i];
       if (entity) {
         sprite = entity.sprite;
+        break;
       }
     }
     this.targetHand = playScreen.instance.add
@@ -120,9 +138,40 @@ const playScreen = {
       if(nextEvent) {
         animateEvents(event, i+1);
       } else {
-        console.log('DONE WITH ANIMATIONS LOOP!')
+        applyEvents(events);
+        GuiManager.setSelectionMode('TARGET');
       }
-    })
+    });
+  }
+}
+
+function applyEvents(events) {
+  var allCharacters = getAllCharacters();
+
+  for(i = 0; i < events.length; i++) {
+    event = events[i];
+    var action = event.action;
+    
+    var agentId = event.character;
+    var receiverId = event.receiver;
+    var agent = allCharacters.find(function(c) { return c.id === agentId});
+    var receiver = allCharacters.find(function(c) { return c.id === receiverId});
+
+    if (!agent || !receiver) {
+      throw Error('missing agent or receiver');
+    }
+
+    if (action.type == 'attack') {
+      var damage = action.outcome.damage;
+
+      if (receiver.id === socket.id) {
+        // set our own HP level
+      } else {
+        receiver.takeDamage(damage);
+      }
+    } else {
+      throw Error('unkown event action.type')
+    }
   }
 }
 
@@ -163,6 +212,75 @@ function initAssets() {
   gameInstance.load.setBaseURL('http://localhost:5000');
   gameInstance.load.image('bg', 'public/assets/img/bg-forest.png');
   gameInstance.load.image('selectTargetHand', 'public/assets/img/select-target-hand.png');
+  gameInstance.load.spritesheet('smokeDisappear', 'public/assets/img/smoke.png', { frameWidth: 37.5, frameHeight: 37.5 });
   gameInstance.load.spritesheet('dwarf', 'public/assets/img/characters/dwarf.png', { frameWidth: 32, frameHeight: 31.7 });
   gameInstance.load.spritesheet('bat', 'public/assets/img/enemies/bat.png', { frameWidth: 32, frameHeight: 32 });
+}
+
+playScreen.removePlayer = function(id) {
+  var gameInstance = playScreen.instance;
+  var position;
+  var player;
+  for(i in playScreen.playerPlacingLine) {
+    var p = playScreen.playerPlacingLine[i];
+    if (p) {
+      playScreen.playerPlacingLine[i] = null
+      player = p
+      position = i
+      break;
+    }
+  }
+
+  if(!player || !position) return
+
+  // add smoke and remove them...
+  var playerSprite = player.sprite;
+  x = playerSprite.x + (playerSprite.width / 2);
+  y = playerSprite.y + (playerSprite.height / 2);
+  var text;
+  EventChain()
+  .then(function() {
+    // get rid of their nametag
+    player.nameTag.destroy();
+    // puff of smoke
+    gameInstance.add.sprite(x, y, 'smokeDisappear').setDisplaySize(120, 180).play('smoke-puff');
+    // text about player leaving
+    text = playScreen.instance.add.text(
+      playerSprite.x - playerSprite.width,
+      playerSprite.y - playerSprite.height - 20,
+      player.entity.name + ' left the match',
+      { fontSize: '17px', fill: '#fff' }
+    );
+    text.x -= (text.width/2)
+  })
+  .wait(100)
+  .then(function() {
+    // remove the play
+    playerSprite.destroy();
+  })
+  .wait(2500)
+  .then(function() {
+    playScreen.instance.add.tween({
+      targets: text,
+      ease: 'Sine.easeInOut',
+      duration: 1000,
+      delay: 0,
+      y: text.y - 20,
+      alpha: {
+        getStart: () => 1,
+        getEnd: () => 0
+      },
+      onComplete: function() {
+        text.destroy();
+      }
+    });
+  })
+  .play();
+
+  // update GUI target if it was the user
+  if (GuiManager.currentTargetSide == 0 && GuiManager.currentTargetIndex == position) {
+    if (GuiManager.selectionMode !== 'TARGET') {
+      GuiManager.setSelectionMode('TARGET');
+    }
+  }
 }

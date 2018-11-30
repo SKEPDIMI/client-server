@@ -1,5 +1,12 @@
 var socket = io('/combat');
 
+socket.on('disconnect', function() {
+  alert('You have been disconnected from the match');
+  location.reload();
+});
+socket.on('PLAYER_DISCONNECTED', function(id) {
+  playScreen.removePlayer(id);
+});
 socket.on('GAME_DATA', function(gameData) {
   // set the game data and spawn
   playScreen.gameDataReceived(gameData);
