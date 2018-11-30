@@ -42,6 +42,7 @@ var Bat = function (gameInstance, character, { x, y }) {
 
   return Object.assign(
     {},
+    extensionHealth(state),
     state,
   )
 }

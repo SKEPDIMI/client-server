@@ -19,6 +19,7 @@ function Dwarf(gameInstance, character, { x, y }) {
 
   return Object.assign(
     {},
+    extensionHealth(state),
     state
   )
 }
