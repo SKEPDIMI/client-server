@@ -62,13 +62,25 @@ header {
   color: grey;
 }
 .GUI li.disabled {
-  color: rgb(151, 151, 151);
+  color: rgb(87, 87, 87);
 }
 
 .GUI.disabled li.active {
   color: grey;
   padding-left: 2px;
   list-style-image: url('../img/hand-select.png');
+}
+
+.GUI #health-bar-container {
+  height: 10px;
+  width: 100%;
+  max-width: 200px;
+  border: 1px solid grey;
+}
+.GUI #health-bar {
+  background: #56f33e;
+  width: 0;
+  height: 10px;
 }
 
 #form {
