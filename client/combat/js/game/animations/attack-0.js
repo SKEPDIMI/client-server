@@ -1,7 +1,10 @@
 ANIMATIONS['attack']['attack-0'] = function(event) {
   var action = event.action;
-  var damage = action.outcome.damage;
-  var crit = action.outcome.criticalStrike.toFixed(2);
+  var {
+    damage,
+    criticalStrike, 
+    damageFormula
+  } = action.outcome;
 
   var allCharacters = getAllCharacters();
   var agentId = event.character;
@@ -55,7 +58,7 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
       damageText = playScreen.instance.add.text(
         receiverSprite.x - receiverSprite.width - 20,
         receiverSprite.y - receiverSprite.height - 20,
-        'dmg: ' + damage + ' - crit: ' + crit + '!',
+        damageFormula,
         { fontSize: textHeight+'px', fill: '#fff' }
       );
     })
