@@ -55,6 +55,8 @@ GuiManager.init = function(currentPlayer) {
         GuiManager.exitSelectionMode();
         break;
     }
+
+    console.log(GuiManager.currentCursorIndex)
   })
 }
 
@@ -100,7 +102,8 @@ GuiManager.moveCursor = function (direction) {
   }
   else if (this.selectionMode === 'ACTION')
   {
-    var options = this.guiMasterObject[this.currentScreen]
+    var options = this.guiMasterObject[this.currentScreen];
+    var description = '';
     var currentIndex = this.currentCursorIndex;
     var nextIndex = currentIndex;
     var j = currentIndex;
@@ -125,6 +128,7 @@ GuiManager.moveCursor = function (direction) {
     for (var i = 0; i < options.length; i++) {
       if (!options[j].disabled) {
         nextIndex = j
+        description = options[j].description || ''
         break
       }
   
@@ -140,6 +144,9 @@ GuiManager.moveCursor = function (direction) {
         j = options.length - 1
       }
     }
+    console.log('setting description')
+
+    $('.GUI #gui-description-container').html('<p>' + description + '</p>');
 
     if (nextIndex == currentIndex) {
       return
@@ -243,8 +250,7 @@ GuiManager.updateGuiView = function (currentPlayer, screen = 'root') {
   var objectGui = this.guiMasterObject;
 
   for(i = 0; i < objectGui[screen].length; i++) {
-    var { title, disabled } = objectGui[screen][i];
-    console.log(title + ' is ' + disabled ? '' : 'not ' + 'disabled')
+    var { title, description, disabled } = objectGui[screen][i];
     var className = disabled ? 'disabled' : ''
     list.append(
       "<li class='" + className + "'>" + title + "</li>"
@@ -295,6 +301,7 @@ GuiManager.generateObjectGui = function(currentPlayer) {
 
       parsedAttacks.push({
         title: attackInfo.title,
+        description: attackInfo.description,
         select: {
           type: 'attack',
           id,
