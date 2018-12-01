@@ -19,11 +19,9 @@ socket.on('GAME_DATA', function(gameData) {
 socket.on('NEW_PLAYER', function(player) {
   playScreen.spawn(player);
 });
-socket.on('TURN', function(turn) {
-  playScreen.beginTurn(turn);
-});
-socket.on('OUTCOME', function(events) {
-  playScreen.animateEvents(events);
+socket.on('MATCH_END', function(endState) {
+  GuiManager.setSelectionMode('HIDDEN');
+  playScreen.animateEvents(endState);
 });
 
 socket.on('ERROR', function(error) {
