@@ -2,16 +2,48 @@ const playScreen = {
   key: 'playScreen',
   targetHand: null,
   playerPlacingLine: {
-    0: null,
-    1: null,
-    2: null,
-    3: null,
+    0: {
+      character: false,
+      next: 1,
+      prev: 3,
+    },
+    1: {
+      character: false,
+      next: 2,
+      prev: 0,
+    },
+    2: {
+      character: false,
+      next: 3,
+      prev: 1,
+    },
+    3: {
+      character: false,
+      next: 0,
+      prev: 2,
+    },
   },
   enemyPlacingLine: {
-    0: null,
-    1: null,
-    2: null,
-    3: null,
+    0: {
+      character: false,
+      next: 1,
+      prev: 3,
+    },
+    1: {
+      character: false,
+      next: 2,
+      prev: 0,
+    },
+    2: {
+      character: false,
+      next: 3,
+      prev: 1,
+    },
+    3: {
+      character: false,
+      next: 0,
+      prev: 2,
+    },
   },
   preload() {
     // set the instance for global use
@@ -83,12 +115,12 @@ const playScreen = {
       coordinatesInLine,
     );
 
-    placingLine[emptySpotInLine] = spawned
+    placingLine[emptySpotInLine].character = spawned
   },
   addTargetHand() {
     var sprite;
     for(i in this.playerPlacingLine) {
-      var entity = this.playerPlacingLine[i];
+      var entity = this.playerPlacingLine[i].character;
       if (entity) {
         sprite = entity.sprite;
         break;
@@ -112,7 +144,7 @@ const playScreen = {
         ? this.enemyPlacingLine
         : null;
 
-    var character = placingLine[newIndex];
+    var character = placingLine[newIndex].character;
 
     if(!character) {
       throw new Error('NO CHARACTER AT PLACINGLINE[' + newIndex + ']');
@@ -194,13 +226,13 @@ function getAllCharacters() {
   var e = playScreen.enemyPlacingLine;
 
   for (id in p) {
-    if (p[id]) {
-      r.push(p[id])
+    if (p[id].character) {
+      r.push(p[id].character)
     }
   }
   for(id in e) {
-    if (e[id]) {
-      r.push(e[id])
+    if (e[id].character) {
+      r.push(e[id].character)
     }
   }
 
@@ -223,9 +255,9 @@ playScreen.removePlayer = function(id) {
   var player;
   for(i in playScreen.playerPlacingLine) {
     var p = playScreen.playerPlacingLine[i];
-    if (p) {
-      playScreen.playerPlacingLine[i] = null
-      player = p
+    if (p.character) {
+      playScreen.playerPlacingLine[i].character = null
+      player = p.character
       position = i
       break;
     }
