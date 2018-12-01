@@ -217,10 +217,15 @@ function animateAction(event) {
   var action = event.action;
   var animations = ANIMATIONS[action.type];
   animation = animations[action.id];
+
+  if(typeof animation != 'function') throw Error('Unknown animation...');
   
   return new Promise(function(resolve, reject) {
     animation(event)
-    .then(resolve);
+    .then(resolve)
+    .catch(function(e) {
+      throw Error(e);
+    });
   });
 }
 
