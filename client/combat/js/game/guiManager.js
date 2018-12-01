@@ -55,8 +55,6 @@ GuiManager.init = function(currentPlayer) {
         GuiManager.exitSelectionMode();
         break;
     }
-
-    console.log(GuiManager.currentCursorIndex)
   })
 }
 
@@ -144,7 +142,6 @@ GuiManager.moveCursor = function (direction) {
         j = options.length - 1
       }
     }
-    console.log('setting description')
 
     $('.GUI #gui-description-container').html('<p>' + description + '</p>');
 
@@ -250,7 +247,7 @@ GuiManager.updateGuiView = function (currentPlayer, screen = 'root') {
   var objectGui = this.guiMasterObject;
 
   for(i = 0; i < objectGui[screen].length; i++) {
-    var { title, description, disabled } = objectGui[screen][i];
+    var { title, disabled } = objectGui[screen][i];
     var className = disabled ? 'disabled' : ''
     list.append(
       "<li class='" + className + "'>" + title + "</li>"
