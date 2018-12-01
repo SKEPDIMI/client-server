@@ -1,7 +1,7 @@
 ANIMATIONS['attack']['attack-0'] = function(event) {
   var action = event.action;
   var damage = action.outcome.damage;
-  var crit = action.outcome.criticalStrike;
+  var crit = action.outcome.criticalStrike.toFixed(2);
 
   var allCharacters = getAllCharacters();
   var agentId = event.character;
