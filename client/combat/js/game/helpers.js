@@ -68,7 +68,7 @@ helpers.findEmptySpotInLine = function(placingLine) {
   if (typeof placingLine != 'object') throw new Error('PLACING LINE IS NOT AN OBJECT')
 
   for (i in placingLine) {
-    if (!placingLine[i]) {
+    if (!placingLine[i].character) {
       return Number(i)
     }
   }

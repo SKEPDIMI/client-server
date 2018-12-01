@@ -179,7 +179,7 @@ GuiManager.selectOption = function() {
         : this.currentTargetSide == 1
           ? playScreen.enemyPlacingLine
           : null
-      var target = placingLine[this.currentTargetIndex];
+      var target = placingLine[this.currentTargetIndex].character;
 
       if (!target) throw new Error('This target has been removed from its placing line');
 
@@ -276,7 +276,7 @@ GuiManager.generateObjectGui = function(currentPlayer) {
     { title: 'Actions', to: 'actions', disabled: true }
   ]
   // enable options based on external conditions
-  if (selectedTargetCharacter.enemy) {
+  if (selectedTargetCharacter.character.enemy) {
     delete parsedRoot[0].disabled
   }
   // push them to the guiMasterObject
@@ -354,9 +354,8 @@ var chainRemovalAnimation = function(toAnimate, cb, ix = 0){
 */
 
 GuiManager.nextTargetIndexInLine = function(direction) {
-  var currentTargetIndex = this.currentTargetIndex;
   var currentTargetSide = this.currentTargetSide;
-
+  var j = this.currentTargetIndex;
   var placingLine = currentTargetSide == 0 
     ? playScreen.playerPlacingLine
     : currentTargetSide == 1
@@ -364,31 +363,18 @@ GuiManager.nextTargetIndexInLine = function(direction) {
       : null
     
   var a = Object.values(placingLine);
-  
-  var j = currentTargetIndex;
-  if (direction == 'down') {
-    j++
-  } else if (direction == 'up') {
-    j--
-  }
-
   for (var i = 0; i < a.length; i++) {
-    if (a[j]) {
+    if (!direction || direction == 'down') {
+      j = a[j].next
+    } else if (direction == 'up') {
+      j = a[j].prev
+    }
+    if (a[j].character) {
       result = j
       break
     }
 
-    if (!direction || direction == 'down') {
-      j++
-    } else if (direction == 'up') {
-      j--
-    }
-    if (j > a.length-1) {
-      j = 0;
-    }
-    if (j<0) {
-      j = a.length-1
-    }
+    
   }
 
   return j
