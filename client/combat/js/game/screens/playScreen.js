@@ -87,6 +87,8 @@ const playScreen = {
 
       playScreen.spawn(character);
     }
+
+    GuiManager.setSelectionMode('TARGET');
   },
   // WILL TAKE CHARACTER DATA AND
   // FIND EMPTY SPOT IN THEIR CHARACTER TYPE LINE,
@@ -160,18 +162,22 @@ const playScreen = {
   
     }
   },
-  animateEvents(events, i = 0) {
-    if (!events.length) return
+  animateEvents(endState, i = 0) {
+    var events = endState.applied;
     var event = events[i];
     var nextEvent = events[i + 1];
 
     animateAction(event)
     .then(function() {
       if(nextEvent) {
-        animateEvents(event, i+1);
+        animateEvents(endState, i+1);
       } else {
         applyEvents(events);
-        GuiManager.setSelectionMode('TARGET');
+        if (endState.turn == 0) {
+          GuiManager.setSelectionMode('TARGET');
+        } else {
+          console.log('WAITING FOR ENEMIES')
+        }
       }
     });
   }
