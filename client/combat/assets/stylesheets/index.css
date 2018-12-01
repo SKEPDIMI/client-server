@@ -35,6 +35,8 @@ header {
   padding: 10px;
   border-radius: 2px;
   color: white;
+
+  transition: .75s height ease-in-out;
 }
 
 .GUI > div {
@@ -83,7 +85,9 @@ header {
   height: 10px;
 }
 .GUI.hidden {
-  height: 0;
+  height: 0 !important;
+  padding: 0;
+  margin: 0;
 }
 #form {
   background: rgba(24, 24, 24, 0.856);
