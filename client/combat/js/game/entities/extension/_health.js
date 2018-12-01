@@ -4,7 +4,6 @@ function extensionHealth (state) {
   }
 
   health.takeDamage = function(dmg) {
-    debugger
     if (typeof dmg == 'number') {
       state.entity.health -= dmg
       if (state.entity.health < 0) {
