@@ -2,6 +2,7 @@ var moveCursorSound = new Howl({ src: ['./assets/audio/cursor-move.mp3']});
 var selectCursorSound = new Howl({ src: ['./assets/audio/cursor-select.mp3']});
 
 var GuiManager = {
+  initialized: false,
   selectionMode: null,
   // TARGET SELECTION:
   currentTargetSide: 0,
@@ -26,7 +27,7 @@ var GuiManager = {
 }
 
 GuiManager.init = function(currentPlayer) {
-  this.updateGuiView(currentPlayer);
+  GuiManager.updateGuiView(currentPlayer);
 
   document.addEventListener('keydown', function(event) {
     if (GuiManager.selectionMode == 'HIDDEN') return;
@@ -55,11 +56,14 @@ GuiManager.init = function(currentPlayer) {
         GuiManager.exitSelectionMode();
         break;
     }
-  })
+  });
+
+  GuiManager.setSelectionMode('TARGET');
+  GuiManager.initialized = true
 }
 
 GuiManager.moveCursor = function (direction) {
-  if (this.selectionMode === 'TARGET')
+  if (GuiManager.selectionMode === 'TARGET')
   {
     var h = null;
     var side = null;
@@ -82,27 +86,27 @@ GuiManager.moveCursor = function (direction) {
     }
 
     if (h) {
-      this.currentTargetIndex = GuiManager.nextTargetIndexInLine(h);
+      GuiManager.currentTargetIndex = GuiManager.nextTargetIndexInLine(h);
     } else if (typeof side == 'number') {
-      this.currentTargetSide = side
-      this.currentTargetIndex = GuiManager.nextTargetIndexInLine();
+      GuiManager.currentTargetSide = side
+      GuiManager.currentTargetIndex = GuiManager.nextTargetIndexInLine();
     } else {
       return
     }
     moveCursorSound.play();
 
     var settings = {
-      index: this.currentTargetIndex,
-      side: this.currentTargetSide
+      index: GuiManager.currentTargetIndex,
+      side: GuiManager.currentTargetSide
     }
 
     playScreen.moveTargetHandTo(settings);
   }
-  else if (this.selectionMode === 'ACTION')
+  else if (GuiManager.selectionMode === 'ACTION')
   {
-    var options = this.guiMasterObject[this.currentScreen];
+    var options = GuiManager.guiMasterObject[GuiManager.currentScreen];
     var description = '';
-    var currentIndex = this.currentCursorIndex;
+    var currentIndex = GuiManager.currentCursorIndex;
     var nextIndex = currentIndex;
     var j = currentIndex;
 
@@ -156,18 +160,18 @@ GuiManager.moveCursor = function (direction) {
     activeChild.removeClass('active');
     $(children[nextIndex]).addClass('active');
     
-    this.currentCursorIndex = nextIndex;
+    GuiManager.currentCursorIndex = nextIndex;
   }
 }
 
 GuiManager.selectOption = function() {
   selectCursorSound.play();
 
-  if (this.selectionMode === 'TARGET') {
-    this.setSelectionMode('ACTION');
-  } else if (this.selectionMode == 'ACTION') {
-    var currentScreenObj = this.guiMasterObject[this.currentScreen];
-    var currentIndex = this.currentCursorIndex;
+  if (GuiManager.selectionMode === 'TARGET') {
+    GuiManager.setSelectionMode('ACTION');
+  } else if (GuiManager.selectionMode == 'ACTION') {
+    var currentScreenObj = GuiManager.guiMasterObject[GuiManager.currentScreen];
+    var currentIndex = GuiManager.currentCursorIndex;
     var selectedOption = currentScreenObj[currentIndex];
 
     // player is probably hacking...
@@ -175,24 +179,23 @@ GuiManager.selectOption = function() {
     
     // this is a route
     if(selectedOption.to) {
-      this.transition(selectedOption.to);
+      GuiManager.transition(selectedOption.to);
     } else if (selectedOption.select) {
       // remove and update index if player is removed / changed
-      var placingLine = this.currentTargetSide == 0
+      var placingLine = GuiManager.currentTargetSide == 0
         ? playScreen.playerPlacingLine
-        : this.currentTargetSide == 1
+        : GuiManager.currentTargetSide == 1
           ? playScreen.enemyPlacingLine
           : null
-      var target = placingLine[this.currentTargetIndex].character;
+      var target = placingLine[GuiManager.currentTargetIndex].character;
 
       if (!target) throw new Error('This target has been removed from its placing line');
-
       socket.emit('ACTION', {
-        target: { id: target.id},
+        receiverId: target.id,
         action: selectedOption.select
       });
 
-      this.setSelectionMode('HIDDEN');
+      GuiManager.setSelectionMode('HIDDEN');
     } else {
       console.log('UNKOWN OPTION ACTION');
     }
@@ -211,15 +214,15 @@ GuiManager.setSelectionMode = function(selectionMode) {
     playScreen.addTargetHand();
 
     $('.GUI').addClass('disabled').removeClass('hidden');
-    this.selectionMode = 'TARGET';
+    GuiManager.selectionMode = 'TARGET';
   }
   else if (selectionMode == 'ACTION')
   {
     playScreen.removeTargetHand();
-    this.transition('root');
+    GuiManager.transition('root');
 
     $('.GUI').removeClass('disabled').removeClass('hidden');
-    this.selectionMode = 'ACTION';
+    GuiManager.selectionMode = 'ACTION';
   }
 
   $('.GUI').animate({
@@ -244,7 +247,7 @@ GuiManager.updateGuiView = function (currentPlayer, screen = 'root') {
   GuiManager.generateObjectGui(currentPlayer);
 
   var list = $('#gui-selection-list');
-  var objectGui = this.guiMasterObject;
+  var objectGui = GuiManager.guiMasterObject;
 
   for(i = 0; i < objectGui[screen].length; i++) {
     var { title, disabled } = objectGui[screen][i];
@@ -257,15 +260,15 @@ GuiManager.updateGuiView = function (currentPlayer, screen = 'root') {
   $(list.children()[0])
     .addClass('active');
 
-  this.currentScreen = screen;
-  this.currentCursorIndex = 0
+  GuiManager.currentScreen = screen;
+  GuiManager.currentCursorIndex = 0
 }
 
 GuiManager.generateObjectGui = function(currentPlayer) {
-  var selectedTargetCharacter = this.currentTargetSide == 0
-    ? playScreen.playerPlacingLine[this.currentTargetIndex]
-    : this.currentTargetSide == 1
-      ? playScreen.enemyPlacingLine[this.currentTargetIndex]
+  var selectedTargetCharacter = GuiManager.currentTargetSide == 0
+    ? playScreen.playerPlacingLine[GuiManager.currentTargetIndex]
+    : GuiManager.currentTargetSide == 1
+      ? playScreen.enemyPlacingLine[GuiManager.currentTargetIndex]
       : null
 
   if (!selectedTargetCharacter) {
@@ -283,7 +286,7 @@ GuiManager.generateObjectGui = function(currentPlayer) {
     delete parsedRoot[0].disabled
   }
   // push them to the guiMasterObject
-  this.guiMasterObject.root = parsedRoot
+  GuiManager.guiMasterObject.root = parsedRoot
 
   if (currentPlayer) {
     // PARSE ATTACKS
@@ -306,7 +309,7 @@ GuiManager.generateObjectGui = function(currentPlayer) {
       });
     });
 
-    this.guiMasterObject.attacks = parsedAttacks;
+    GuiManager.guiMasterObject.attacks = parsedAttacks;
     // PARSE POTIONS
 
     // PARSE ACTIONS
@@ -314,9 +317,9 @@ GuiManager.generateObjectGui = function(currentPlayer) {
 }
 
 GuiManager.exitSelectionMode = function() {
-  if (this.selectionMode == 'ACTION') {
+  if (GuiManager.selectionMode == 'ACTION') {
     selectCursorSound.play();
-    this.setSelectionMode('TARGET');
+    GuiManager.setSelectionMode('TARGET');
   }
 }
 
@@ -335,31 +338,9 @@ var chainRemovalAnimation = function(toAnimate, cb, ix = 0){
   }
 };
 
-// FIND THE INDEX OF THE NEXT TARGET IN
-// THE GAME'S PLACING LINE DEPENDING ON
-// THE DIRECTION AND SIDE
-// example:
-/*
-  playScreen.playerPlacingLine = {
-    0: {name: 'john'},
-    1: {name: 'doe'},
-    2: {name: 'bob'},
-    3: null,
-  }
-  this.currentTargetIndex = 1;
-  this.currentTargetSide = 0; // this means playerPlacingLine
-
-  GuiManager.nextTargetIndexInLine('up'); // => 2
-  GuiManager.nextTargetIndexInLine('down'); // 0
-
-  this.currentTargetIndex = 0;
-  GuiManager.nextTargetIndexInLine('up'); // => 1
-  GuiManager.nextTargetIndexInLine('down'); // => 2
-*/
-
 GuiManager.nextTargetIndexInLine = function(direction) {
-  var currentTargetSide = this.currentTargetSide;
-  var j = this.currentTargetIndex;
+  var currentTargetSide = GuiManager.currentTargetSide;
+  var j = GuiManager.currentTargetIndex;
   var placingLine = currentTargetSide == 0 
     ? playScreen.playerPlacingLine
     : currentTargetSide == 1
@@ -383,3 +364,12 @@ GuiManager.nextTargetIndexInLine = function(direction) {
 
   return j
 };
+
+GuiManager.setHP = function(currentUser) {
+  var h = currentUser.entity.health;
+  var m = currentUser.entity.maxHealth;
+  var p = h/m;
+
+  $('.health').html('HP \n' + h + ' / ' + m);
+  $('#health-bar').animate({ width: (p*100)+'%'}, 500);
+}
