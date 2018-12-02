@@ -152,6 +152,7 @@ function initAssets() {
 
   gameInstance.load.spritesheet('smokeDisappear', assetsFolder+ '/img/smoke.png', { frameWidth: 37.5, frameHeight: 37.5 });
   gameInstance.load.spritesheet('dwarf', assetsFolder + '/img/characters/dwarf.png', { frameWidth: 38, frameHeight: 32 });
+  gameInstance.load.spritesheet('adventurer', assetsFolder + '/img/characters/adventurer.png', { frameWidth: 32, frameHeight: 32 });
   gameInstance.load.spritesheet('bat', assetsFolder + '/img/enemies/bat.png', { frameWidth: 32, frameHeight: 32 });
 }
 
@@ -262,6 +263,9 @@ playScreen.spawn = function(character) {
 }
 
 playScreen.addTargetHand = function() {
+  console.log('added target hand!s')
+  if (this.targetHand) return this
+
   var sprite;
   for(i in playScreen.playerPlacingLine) {
     var entity = playScreen.playerPlacingLine[i].character;
@@ -274,6 +278,8 @@ playScreen.addTargetHand = function() {
   playScreen.targetHand = playScreen.instance.add
     .image(sprite.x, sprite.y, 'selectTargetHand')
     .setDisplaySize(30, 30);
+
+    return this
 }
 
 playScreen.removeTargetHand = function() {

@@ -16,11 +16,18 @@ function Dwarf(character, { x, y }) {
     entityData: character.entity.entityData,
     sprite,
     nameTag,
+    animationKey: {
+      'idle': 'dwarf-idle',
+      'movement': 'dwarf-walk',
+      'attack-0': 'dwarf-jab',
+      'attack-1': 'dwarf-swing',
+    }
   }
 
   return Object.assign(
     {},
     extensionHealth(state),
+    extensionAnimationKey(state),
     extensionIcon(state),
     state
   )
@@ -63,4 +70,4 @@ Dwarf.init = function() {
   return Dwarf
 }
 
-entityTypes[0] = Dwarf
+entityTypes['entity-0'] = Dwarf

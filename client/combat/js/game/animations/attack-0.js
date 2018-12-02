@@ -1,3 +1,7 @@
+/*
+  ANIMATION: JAB
+*/
+
 ANIMATIONS['attack']['attack-0'] = function(event) {
   var action = event.action;
   var {
@@ -26,6 +30,10 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
 
     var damageText;
 
+    var idleAnimationKey = agent.getAnimationKey('idle')
+    var movementAnimationKey = agent.getAnimationKey('movement')
+    var attackAnimationKey = agent.getAnimationKey('attack-1')
+
     timeline.add({
       targets: [agentSprite, agent.nameTag],
       x: pos1,
@@ -44,12 +52,12 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
 
     EventChain()
     .then(function() {
-      agentSprite.play('dwarf-walk'); 
+      agentSprite.play(movementAnimationKey); 
     })
     .wait(300)
     .then(function() {
       receiverSprite.play('bat-harm');
-      agentSprite.play('dwarf-jab');
+      agentSprite.play(attackAnimationKey);
     })
     .wait(100)
     .then(function() {
@@ -67,14 +75,14 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
     .wait(900)
     .then(function() {
       agentSprite.scaleX *= -1
-      agentSprite.play('dwarf-walk');
+      agentSprite.play(movementAnimationKey);
     })
     .wait(300)
     .then(function() { // walk for 300m
       agentSprite.scaleX *= -1
 
       receiverSprite.play('bat-idle');
-      agentSprite.play('dwarf-idle'); // go back to idle
+      agentSprite.play(idleAnimationKey); // go back to idle
     })
     .wait(500)
     .then(function() {

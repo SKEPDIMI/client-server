@@ -48,4 +48,4 @@ Bat.init = function() {
   return Bat
 }
 
-entityTypes[1] = Bat
+entityTypes['entity-1'] = Bat
