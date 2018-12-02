@@ -4,24 +4,19 @@ socket.on('disconnect', function() {
   alert('You have been disconnected from the match');
   location.reload();
 });
-socket.on('PLAYER_DISCONNECTED', function(id) {
-  playScreen.removePlayer(id);
-});
 socket.on('GAME_DATA', function(gameData) {
-  // set the game data and spawn
-  playScreen.gameDataReceived(gameData);
+  // return if game has not been initialized
+  if(!playScreen.ready) return
 
-  // init with the current user
-  GuiManager.init(
-    gameData.players[socket.id]
-  );
-});
-socket.on('NEW_PLAYER', function(player) {
-  playScreen.spawn(player);
-});
-socket.on('MATCH_END', function(endState) {
-  GuiManager.setSelectionMode('HIDDEN');
-  playScreen.animateEvents(endState);
+  // set the game data and spawn
+  playScreen.gameStateReceived(gameData);
+
+  if (!GuiManager.initialized) {
+    // init with the current user
+    GuiManager.init(
+      gameData.players[socket.id]
+    );
+  }
 });
 
 socket.on('ERROR', function(error) {
