@@ -1,3 +1,7 @@
+/*
+  ATTACK: SWING
+*/
+
 ANIMATIONS['attack']['attack-1'] = function(event) {
   var action = event.action;
   var {
@@ -43,20 +47,21 @@ ANIMATIONS['attack']['attack-1'] = function(event) {
 
     var damageText
 
+    var idleAnimationKey = agent.getAnimationKey('idle')
+    var movementAnimationKey = agent.getAnimationKey('movement')
+    var attackAnimationKey = agent.getAnimationKey('attack-1')
+    
     EventChain()
     .then(function() {
-      agentSprite.play('dwarf-walk');
+      agentSprite.play(movementAnimationKey);
     })
     .wait(350)
     .then(function() {
       // animate swing
-      agentSprite.play('dwarf-attack');
+      agentSprite.play(attackAnimationKey);
     })
     .wait(300)
     .then(function() {
-      // animate swing
-      agentSprite.scaleX *= -1
-
       var textHeight = 18 // this should change based on the strength of the attack
 
       damageText = playScreen.instance.add.text(
@@ -65,17 +70,20 @@ ANIMATIONS['attack']['attack-1'] = function(event) {
         damageFormula,
         { fontSize: textHeight+'px', fill: '#fff' }
       );
+
+      receiver.updateHealthBar()
     })
     .wait(1200)
     .then(function() {
       // animate walk back
-      agentSprite.play('dwarf-walk');
+      agentSprite.scaleX *= -1
+      agentSprite.play(movementAnimationKey);
     })
     .wait(290)
     .then(function() {
       // animate idle
       agentSprite.scaleX *= -1
-      agentSprite.play('dwarf-idle');
+      agentSprite.play(idleAnimationKey);
     })
     .wait(10)
     .then(function() {

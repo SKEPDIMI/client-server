@@ -1,8 +1,10 @@
+/*
+  ANIMATION: JAB
+*/
+
 ANIMATIONS['attack']['attack-0'] = function(event) {
   var action = event.action;
   var {
-    damage,
-    criticalStrike, 
     damageFormula
   } = action.outcome;
 
@@ -24,32 +26,38 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
     var timeline = playScreen.instance.tweens.createTimeline();
     var initialPosition = {x: agentSprite.x, y: agentSprite.y};
 
+    var pos1 = agentSprite.x + 300;
+
     var damageText;
 
+    var idleAnimationKey = agent.getAnimationKey('idle')
+    var movementAnimationKey = agent.getAnimationKey('movement')
+    var attackAnimationKey = agent.getAnimationKey('attack-1')
+
     timeline.add({
-      targets: agentSprite,
-      x: 300,
+      targets: [agentSprite, agent.nameTag],
+      x: pos1,
       duration: 300,
     });
     timeline.add({
-      targets: agentSprite,
-      x: 300,
+      targets: [agentSprite, agent.nameTag],
+      x: pos1,
       duration: 1000,
     });
     timeline.add({
-      targets: agentSprite,
+      targets: [agentSprite, agent.nameTag],
       x: initialPosition.x,
       duration: 300,
     });
 
     EventChain()
     .then(function() {
-      agentSprite.play('dwarf-walk'); 
+      agentSprite.play(movementAnimationKey); 
     })
     .wait(300)
     .then(function() {
       receiverSprite.play('bat-harm');
-      agentSprite.play('dwarf-attack');
+      agentSprite.play(attackAnimationKey);
     })
     .wait(100)
     .then(function() {
@@ -61,18 +69,20 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
         damageFormula,
         { fontSize: textHeight+'px', fill: '#fff' }
       );
+
+      receiver.updateHealthBar();
     })
     .wait(900)
     .then(function() {
       agentSprite.scaleX *= -1
-      agentSprite.play('dwarf-walk');
+      agentSprite.play(movementAnimationKey);
     })
     .wait(300)
     .then(function() { // walk for 300m
       agentSprite.scaleX *= -1
 
       receiverSprite.play('bat-idle');
-      agentSprite.play('dwarf-idle'); // go back to idle
+      agentSprite.play(idleAnimationKey); // go back to idle
     })
     .wait(500)
     .then(function() {

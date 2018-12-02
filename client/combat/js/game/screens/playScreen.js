@@ -1,5 +1,11 @@
 const playScreen = {
   key: 'playScreen',
+  ready: false,
+  gameState: {
+    enemies: {},
+    players: {},
+    turn: null,
+  },
   targetHand: null,
   playerPlacingLine: {
     0: {
@@ -46,144 +52,39 @@ const playScreen = {
     },
   },
   preload() {
-    // set the instance for global use
+    /*
+      SET THE PHASER.GAME INSTANCE
+      FOR GLOBAL USE!!!
+    */
     playScreen.instance = this;
     initAssets();
   },
   create() {
-    this.anims.create({
+    var gameInstance = playScreen.instance;
+
+    gameInstance.anims.create({
       key: 'smoke-puff',
-      frames: this.anims.generateFrameNumbers('smokeDisappear', { start: 0, end: 40 }),
+      frames: gameInstance.anims.generateFrameNumbers('smokeDisappear', { start: 0, end: 40 }),
       frameRate: 70,
       repeat: 1,
     });
     // add background
-    this.add.image(window.innerWidth/2, window.innerHeight/2, 'bg')
+    gameInstance.add.image(window.innerWidth/2, window.innerHeight/2, 'bg')
       .setDisplaySize(window.innerWidth, window.innerHeight);
 
-    // init animation
+    // init animations for entities
     for(id in entityTypes) {
-      entityTypes[id].init(this);
+      entityTypes[id].init();
     }
 
     var name = $('#form #name-input').val();
     socket.emit('JOIN_GAME', name);
+
+    playScreen.ready = true
   },
-  gameDataReceived(gameData) {
-    // spawn in game data
-    var allCharacters = Object.assign({}, gameData.players, gameData.enemies);
-
-    for (id in allCharacters) {
-      var character = allCharacters[id];
-
-      if (character.id === socket.id) {
-        h = character.entity.health;
-        m = character.entity.maxHealth;
-        p = h/m
-
-        $('.health').html('HP \n' + h + ' / ' + m);
-        $('#health-bar').animate({ width: (p*100)+'%'}, 500)
-      }
-
-      playScreen.spawn(character);
-    }
-
-    GuiManager.setSelectionMode('TARGET');
-  },
-  // WILL TAKE CHARACTER DATA AND
-  // FIND EMPTY SPOT IN THEIR CHARACTER TYPE LINE,
-  // FIND THEIR COORDINATES IN THE LINE
-  // CREATE A CHARACTER OBJECT & SPRITE AT THIS COORDINATE
-  // SET THIS OBJECT AT THE PLACING LINE
-  spawn(character) {
-    let { entity } = character;
-    let { entityData } = entity;
-
-    let selected = entityTypes[entityData.id];
-
-    if (!selected) {
-      console.error('UNKNOWN ENTITY.ID: ', entityData.id);
-    }
-
-    const placingLine = entityData.enemy
-      ? this.enemyPlacingLine
-      : this.playerPlacingLine
-    const emptySpotInLine = helpers.findEmptySpotInLine(placingLine);
-    const coordinatesInLine = helpers.coordinatesForEntity(entity, emptySpotInLine);
-
-    let spawned = selected(
-      playScreen.instance,
-      character,
-      coordinatesInLine,
-    );
-
-    placingLine[emptySpotInLine].character = spawned
-  },
-  addTargetHand() {
-    var sprite;
-    for(i in this.playerPlacingLine) {
-      var entity = this.playerPlacingLine[i].character;
-      if (entity) {
-        sprite = entity.sprite;
-        break;
-      }
-    }
-    this.targetHand = playScreen.instance.add
-      .image(sprite.x, sprite.y, 'selectTargetHand')
-      .setDisplaySize(30, 30);
-  },
-  removeTargetHand() {
-    if(this.targetHand) {
-      this.targetHand.destroy();
-    }
-  },
-  moveTargetHandTo(settings) {
-    var newSide = settings.side;
-    var newIndex = settings.index;
-    var placingLine = newSide == 0
-      ? this.playerPlacingLine
-      : newSide == 1
-        ? this.enemyPlacingLine
-        : null;
-
-    var character = placingLine[newIndex].character;
-
-    if(!character) {
-      throw new Error('NO CHARACTER AT PLACINGLINE[' + newIndex + ']');
-    }
-
-    this.targetHand.x = character.sprite.x - character.sprite.width
-    this.targetHand.y = character.sprite.y
-  },
-  beginTurn(turn) {
-    if (turn == 0) {
-      GuiManager.setSelectionMode('TARGET');
-    } else if (turn == 1) {
-  
-    }
-  },
-  animateEvents(endState, i = 0) {
-    var events = endState.applied;
-    var event = events[i];
-    var nextEvent = events[i + 1];
-
-    animateAction(event)
-    .then(function() {
-      if(nextEvent) {
-        animateEvents(endState, i+1);
-      } else {
-        applyEvents(events);
-        if (endState.turn == 0) {
-          GuiManager.setSelectionMode('TARGET');
-        } else {
-          console.log('WAITING FOR ENEMIES')
-        }
-      }
-    });
-  }
 }
 
-function applyEvents(events) {
+playScreen.applyEvents = function(events) {
   var allCharacters = getAllCharacters();
 
   for(i = 0; i < events.length; i++) {
@@ -200,13 +101,6 @@ function applyEvents(events) {
     }
 
     if (action.type == 'attack') {
-      var damage = action.outcome.damage;
-
-      if (receiver.id === socket.id) {
-        // set our own HP level
-      } else {
-        receiver.takeDamage(damage);
-      }
     } else {
       throw Error('unkown event action.type')
     }
@@ -233,43 +127,47 @@ function animateAction(event) {
 // CHARACTERS IN THE ENEMY/PLAYER LINE
 function getAllCharacters() {
   var r = [];
-  var p = playScreen.playerPlacingLine;
-  var e = playScreen.enemyPlacingLine;
+  var p = playScreen.gameState.players;
+  var e = playScreen.gameState.enemies;
 
   for (id in p) {
-    if (p[id].character) {
-      r.push(p[id].character)
-    }
+    r.push(p[id])
   }
   for(id in e) {
-    if (e[id].character) {
-      r.push(e[id].character)
-    }
+    r.push(e[id])
   }
 
   return r
 }
 function initAssets() {
   var gameInstance = playScreen.instance;
-
+  var assetsFolder = 'public/assets'
+  
   gameInstance.load.setBaseURL('http://localhost:5000');
-  gameInstance.load.image('bg', 'public/assets/img/bg-forest.png');
-  gameInstance.load.image('selectTargetHand', 'public/assets/img/select-target-hand.png');
-  gameInstance.load.spritesheet('smokeDisappear', 'public/assets/img/smoke.png', { frameWidth: 37.5, frameHeight: 37.5 });
-  gameInstance.load.spritesheet('dwarf', 'public/assets/img/characters/dwarf.png', { frameWidth: 32, frameHeight: 31.7 });
-  gameInstance.load.spritesheet('bat', 'public/assets/img/enemies/bat.png', { frameWidth: 32, frameHeight: 32 });
+
+  gameInstance.load.image('bg', assetsFolder + '/img/bg-forest.png');
+  gameInstance.load.image('selectTargetHand', assetsFolder + '/img/select-target-hand.png');
+  gameInstance.load.image('okIcon', assetsFolder + '/img/ok.png');
+  gameInstance.load.image('pendingIcon', assetsFolder + '/img/pending.png');
+
+  gameInstance.load.spritesheet('smokeDisappear', assetsFolder+ '/img/smoke.png', { frameWidth: 37.5, frameHeight: 37.5 });
+  gameInstance.load.spritesheet('dwarf', assetsFolder + '/img/characters/dwarf.png', { frameWidth: 38, frameHeight: 32 });
+  gameInstance.load.spritesheet('adventurer', assetsFolder + '/img/characters/adventurer.png', { frameWidth: 32, frameHeight: 32 });
+  gameInstance.load.spritesheet('bat', assetsFolder + '/img/enemies/bat.png', { frameWidth: 32, frameHeight: 32 });
 }
 
-playScreen.removePlayer = function(id) {
+playScreen.despawnCharacter = function(id) {
   var gameInstance = playScreen.instance;
   var position;
   var player;
   for(i in playScreen.playerPlacingLine) {
-    var p = playScreen.playerPlacingLine[i];
-    if (p.character) {
+    var character = playScreen.playerPlacingLine[i].character;
+
+    if (character && character.id == id) {
       playScreen.playerPlacingLine[i].character = null
       player = p.character
       position = i
+
       break;
     }
   }
@@ -326,4 +224,207 @@ playScreen.removePlayer = function(id) {
       GuiManager.setSelectionMode('TARGET');
     }
   }
+}
+
+playScreen.spawn = function(character) {
+  let { entity } = character;
+  let { entityData } = entity;
+
+  let entityType = entityTypes[entityData.id];
+
+  if (!entityType) {
+    console.error('UNKNOWN ENTITY.ID: ', entityData.id);
+  }
+  // place them in our game state
+  var gameStateCategory;
+  var placingLine;
+
+  if (entityData.enemy) {
+    gameStateCategory = playScreen.gameState.enemies;
+    placingLine = playScreen.enemyPlacingLine;
+  } else {
+    gameStateCategory = playScreen.gameState.players
+    placingLine = playScreen.playerPlacingLine;
+  }
+  var emptySpotInLine = helpers.findEmptySpotInLine(placingLine);
+  
+  // spawn the player and place them in the gameState
+  gameStateCategory[character.id] = entityType(
+    character,
+    helpers.coordinatesForEntity(entity, emptySpotInLine),
+  );
+
+  console.log('added new character to game state!');
+
+  // reference the spawned player in their placing line
+  placingLine[emptySpotInLine].character = gameStateCategory[character.id]
+
+  return gameStateCategory[character.id]
+}
+
+playScreen.addTargetHand = function() {
+  console.log('added target hand!s')
+  if (this.targetHand) return this
+
+  var sprite;
+  for(i in playScreen.playerPlacingLine) {
+    var entity = playScreen.playerPlacingLine[i].character;
+    if (entity) {
+      sprite = entity.sprite;
+      break;
+    }
+  }
+
+  playScreen.targetHand = playScreen.instance.add
+    .image(sprite.x, sprite.y, 'selectTargetHand')
+    .setDisplaySize(30, 30);
+
+    return this
+}
+
+playScreen.removeTargetHand = function() {
+  if(playScreen.targetHand) {
+    playScreen.targetHand.destroy();
+  }
+}
+
+playScreen.animateEvents = function(events, i = 0) {
+  var event = events[i];
+  var nextEvent = events[i + 1];
+
+  animateAction(event)
+  .then(function() {
+    if(nextEvent) {
+      playScreen.animateEvents(events, i+1);
+    } else {
+      playScreen.applyEvents(events);
+    }
+  });
+}
+playScreen.beginTurn = function(turn) {
+  if (turn == 0) {
+    GuiManager.setSelectionMode('TARGET');
+  } else if (turn == 1) {
+
+  }
+}
+
+playScreen.gameStateReceived = function (networkGameState) {
+  var localGameState = playScreen.gameState;
+  
+  // PLAYER UPDATING SECTION
+  var allPlayersOnNetworkState = networkGameState.players;
+  var allPlayersInGameState = localGameState.players;
+
+  // look for players in GAME_STATE NOT in network, despawn them
+  for (id in allPlayersInGameState) {
+    var playerInNetwork = allPlayersOnNetworkState[id];
+
+    if(!playerInNetwork) {
+      // ORIGINAL GAME STATE IS MANIPULATED HERE
+      playScreen.despawnCharacter(id);
+    }
+  }
+
+  // update players in GAME_STATE FROM network
+  for (id in allPlayersOnNetworkState) {
+    var playerOnNetwork = allPlayersOnNetworkState[id];
+    var playerInLocal = allPlayersInGameState[id];
+
+    // this player needs to be spawned
+    if (!playerInLocal) {
+      // ORIGINAL GAME STATE IS MANIPULATED HERE
+      playerInLocal = playScreen.spawn(playerOnNetwork)
+    }
+
+    // set the player's health
+    playerInLocal.setHealth(playerOnNetwork.entity.health);
+
+    // set the player's selectionStatus
+    playerInLocal.setStatusIcon(playerOnNetwork.entity.selectionStatus);
+    playerInLocal.entity.selectionStatus = status
+
+    // set the current player's HP bar
+    if (playerInLocal.id === socket.id) {
+      GuiManager.setHP(playerInLocal);
+    }
+  }
+  // ENEMY UPDATING SECTION
+  var allEnemiesInNetworkState = networkGameState.enemies;
+  var allEnemiesInLocalState = localGameState.enemies;
+
+  // look for players in GAME_STATE NOT in network, despawn them
+  for (id in allEnemiesInLocalState) {
+    var enemyOnNetwork = allEnemiesInNetworkState[id];
+
+    if(!enemyOnNetwork) {
+      // ORIGINAL GAME STATE IS MANIPULATED HERE
+      playScreen.despawnCharacter(id);
+    }
+  }
+
+  // update enemies in GAME_STATE FROM network
+  for (id in allEnemiesInNetworkState) {
+    var enemyOnNetwork = allEnemiesInNetworkState[id];
+    var enemyInLocal = allEnemiesInLocalState[id];
+
+    // this player needs to be spawned
+    if (!enemyInLocal) {
+      enemyInLocal = playScreen.spawn(enemyOnNetwork).updateHealthBar();
+    }
+
+    var healthOnNetwork = enemyOnNetwork.entity.health;
+
+    enemyInLocal
+      .setHealth(healthOnNetwork)
+      // .updateHealthBar();
+  }
+
+  /*
+    EVENTS UPDATING
+  */
+
+  // the network is at another turn
+  if (localGameState.turn != networkGameState.turn) {
+    // we have not JUST joined the match
+    if (localGameState.turn != null) {
+      // show us the events of the last match
+      var appliedEvents = networkGameState.turnEvents[localGameState.turn];
+
+      for(id in playScreen.gameState.players) {
+        var player = playScreen.gameState.players[id];
+        player.removeStatusIcon();
+      }
+
+      playScreen.animateEvents(appliedEvents);
+    }
+
+    localGameState.turn = networkGameState.turn
+    
+    if (localGameState.turn % 2) {
+      console.log('WAITING FOR ENEMIES')
+    } else {
+      console.log('YEP, ITS GAMER TIME')
+      GuiManager.setSelectionMode('TARGET');
+    }
+  }
+}
+
+playScreen.moveTargetHandTo = function (settings) {
+  var newSide = settings.side;
+  var newIndex = settings.index;
+  var placingLine = newSide == 0
+    ? playScreen.playerPlacingLine
+    : newSide == 1
+      ? playScreen.enemyPlacingLine
+      : null;
+
+  var character = placingLine[newIndex].character;
+
+  if(!character) {
+    throw new Error('NO CHARACTER AT PLACINGLINE[' + newIndex + ']');
+  }
+
+  playScreen.targetHand.x = character.sprite.x - character.sprite.width
+  playScreen.targetHand.y = character.sprite.y
 }

@@ -1,34 +1,45 @@
 function extensionHealth (state) {
-  var health = {
-
-  }
-
-  health.takeDamage = function(dmg) {
-    if (typeof dmg == 'number') {
-      state.entity.health -= dmg
-      if (state.entity.health < 0) {
-        state.entity.health = 0
+  return {
+    healthBar: null,
+    healthBarBackground: null,
+    setHealth: function(health) {
+      var currentHealth = this.entity.health;
+  
+      if(health == currentHealth) return this
+  
+      if (typeof health == 'number') {
+        this.entity.health = health
       }
-      health.animateHealthChange();
+  
+      return this
+    },
+    updateHealthBar: function() {
+      var nameTag = this.nameTag;
+  
+      if (this.healthBar) {
+        this.healthBar.destroy();
+      }
+      if (this.healthBarBackground) {
+        this.healthBarBackground.destroy();
+      }
+  
+      var graphics = playScreen.instance.add.graphics(nameTag.x, nameTag.y);
+      var healthWidth = (this.entity.health/this.entity.maxHealth) * nameTag.width;
+  
+      this.healthBar = graphics
+        .fillStyle(0x56F33E)
+        .fillRect(nameTag.x, nameTag.y + nameTag.height, healthWidth, 6);
+  
+      this.healthBarBackground = graphics
+        .fillStyle(0xBEBEBE)
+        .fillRect(
+          nameTag.x + healthWidth,
+          nameTag.y + nameTag.height,
+          nameTag.width - healthWidth,
+          5
+        );
+  
+      return this
     }
-
-    return state
   }
-  health.animateHealthChange = function() {
-    var nameTag = state.nameTag;
-    var healthBar = state.healthBar;
-    var healthBarBackground = state.healthBarBackground;
-
-    var newHealthWidth = Math.random() * nameTag.width;
-
-    // animate these!
-    healthBar.width = newHealthWidth
-    healthBarBackground.width = nameTag.width - newHealthWidth
-    // playScreen.instance.add.tween(healthBar)
-    // .to({ width: newHealthWidth }, 500);
-    // playScreen.instance.add.tween(healthBarBackground)
-    // .to({ width: nameTag.width - newHealthWidth }, 500);
-  }
-
-  return health
 }
