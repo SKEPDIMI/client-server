@@ -50,13 +50,10 @@ ANIMATIONS['attack']['attack-1'] = function(event) {
     .wait(350)
     .then(function() {
       // animate swing
-      agentSprite.play('dwarf-attack');
+      agentSprite.play('dwarf-swing');
     })
     .wait(300)
     .then(function() {
-      // animate swing
-      agentSprite.scaleX *= -1
-
       var textHeight = 18 // this should change based on the strength of the attack
 
       damageText = playScreen.instance.add.text(
@@ -71,6 +68,7 @@ ANIMATIONS['attack']['attack-1'] = function(event) {
     .wait(1200)
     .then(function() {
       // animate walk back
+      agentSprite.scaleX *= -1
       agentSprite.play('dwarf-walk');
     })
     .wait(290)

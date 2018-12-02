@@ -37,19 +37,25 @@ Dwarf.init = function() {
   });
   gameInstance.anims.create({
     key: 'dwarf-walk',
-    frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 11, end: 17}),
+    frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 9, end: 16}),
     frameRate: 7,
     repeat: -1,
   });
   gameInstance.anims.create({
-    key: 'dwarf-attack',
-    frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 21, end: 27 }),
+    key: 'dwarf-jab',
+    frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 17, end: 23 }),
+    frameRate: 8,
+    repeat: 1,
+  });
+  gameInstance.anims.create({
+    key: 'dwarf-swing',
+    frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 25, end: 30 }),
     frameRate: 8,
     repeat: 1,
   });
   gameInstance.anims.create({
     key: 'dwarf-harm',
-    frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 40, end: 44 }),
+    frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 49, end: 52 }),
     frameRate: 4,
     repeat: 1,
   });

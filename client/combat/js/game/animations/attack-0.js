@@ -49,7 +49,7 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
     .wait(300)
     .then(function() {
       receiverSprite.play('bat-harm');
-      agentSprite.play('dwarf-attack');
+      agentSprite.play('dwarf-jab');
     })
     .wait(100)
     .then(function() {

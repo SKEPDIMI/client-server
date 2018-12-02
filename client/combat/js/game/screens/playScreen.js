@@ -151,7 +151,7 @@ function initAssets() {
   gameInstance.load.image('pendingIcon', assetsFolder + '/img/pending.png');
 
   gameInstance.load.spritesheet('smokeDisappear', assetsFolder+ '/img/smoke.png', { frameWidth: 37.5, frameHeight: 37.5 });
-  gameInstance.load.spritesheet('dwarf', assetsFolder + '/img/characters/dwarf.png', { frameWidth: 32, frameHeight: 31.7 });
+  gameInstance.load.spritesheet('dwarf', assetsFolder + '/img/characters/dwarf.png', { frameWidth: 38, frameHeight: 32 });
   gameInstance.load.spritesheet('bat', assetsFolder + '/img/enemies/bat.png', { frameWidth: 32, frameHeight: 32 });
 }
 
