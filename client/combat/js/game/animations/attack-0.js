@@ -1,8 +1,6 @@
 ANIMATIONS['attack']['attack-0'] = function(event) {
   var action = event.action;
   var {
-    damage,
-    criticalStrike, 
     damageFormula
   } = action.outcome;
 
@@ -24,20 +22,22 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
     var timeline = playScreen.instance.tweens.createTimeline();
     var initialPosition = {x: agentSprite.x, y: agentSprite.y};
 
+    var pos1 = agentSprite.x + 300;
+
     var damageText;
 
     timeline.add({
-      targets: agentSprite,
-      x: 300,
+      targets: [agentSprite, agent.nameTag],
+      x: pos1,
       duration: 300,
     });
     timeline.add({
-      targets: agentSprite,
-      x: 300,
+      targets: [agentSprite, agent.nameTag],
+      x: pos1,
       duration: 1000,
     });
     timeline.add({
-      targets: agentSprite,
+      targets: [agentSprite, agent.nameTag],
       x: initialPosition.x,
       duration: 300,
     });
@@ -61,6 +61,8 @@ ANIMATIONS['attack']['attack-0'] = function(event) {
         damageFormula,
         { fontSize: textHeight+'px', fill: '#fff' }
       );
+
+      receiver.updateHealthBar();
     })
     .wait(900)
     .then(function() {

@@ -65,6 +65,8 @@ ANIMATIONS['attack']['attack-1'] = function(event) {
         damageFormula,
         { fontSize: textHeight+'px', fill: '#fff' }
       );
+
+      receiver.updateHealthBar()
     })
     .wait(1200)
     .then(function() {
