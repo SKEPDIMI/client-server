@@ -1,4 +1,5 @@
-function Dwarf(gameInstance, character, { x, y }) {
+function Dwarf(character, { x, y }) {
+  var gameInstance = playScreen.instance;
   var sprite = gameInstance.add.sprite(x, y, 'dwarf').setDisplaySize(120, 180).play('dwarf-idle');
   
   var nameTag = gameInstance.add.text(
@@ -8,11 +9,11 @@ function Dwarf(gameInstance, character, { x, y }) {
     { fontSize: '17px', fill: '#fff', backgroundColor: '#0008' }
   );
   nameTag.x = sprite.x - nameTag.width/2
-
+  
   const state = {
     id: character.id,
     entity: character.entity,
-    entityData: character.entityData,
+    entityData: character.entity.entityData,
     sprite,
     nameTag,
   }
@@ -20,11 +21,14 @@ function Dwarf(gameInstance, character, { x, y }) {
   return Object.assign(
     {},
     extensionHealth(state),
+    extensionIcon(state),
     state
   )
 }
 
-Dwarf.init = function(gameInstance) {
+Dwarf.init = function() {
+  var gameInstance = playScreen.instance;
+
   gameInstance.anims.create({
     key: 'dwarf-idle',
     frames: gameInstance.anims.generateFrameNumbers('dwarf', { start: 0, end: 4 }),

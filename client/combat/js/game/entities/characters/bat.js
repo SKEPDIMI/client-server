@@ -1,4 +1,5 @@
-var Bat = function (gameInstance, character, { x, y }) {
+var Bat = function (character, { x, y }) {
+  var gameInstance = playScreen.instance;
   var sprite = gameInstance.add.sprite(x, y, 'bat')
     .setDisplaySize(80, 80)
     .play('bat-idle');
@@ -12,32 +13,13 @@ var Bat = function (gameInstance, character, { x, y }) {
   );
   nameTag.x = sprite.x - nameTag.width/2
 
-  // HEALTH BAR
-  var graphics = gameInstance.add.graphics(nameTag.x, nameTag.y);
-  var healthWidth = (character.entity.health/character.entity.maxHealth) * nameTag.width;
-
-  var healthBar = graphics
-    .fillStyle(0x56F33E)
-    .fillRect(nameTag.x, nameTag.y + nameTag.height, healthWidth, 2);
-
-  var healthBarBackground = graphics
-    .fillStyle(0xBEBEBE)
-    .fillRect(
-      nameTag.x + healthWidth,
-      nameTag.y + nameTag.height,
-      nameTag.width - healthWidth,
-      2
-    );
-
   var state = {
     enemy: true,
     id: character.id,
     entity: character.entity,
-    entityData: character.entityData,
+    entityData: character.entity.entityData,
     sprite,
     nameTag,
-    healthBar,
-    healthBarBackground,
   }
 
   return Object.assign(
@@ -47,7 +29,9 @@ var Bat = function (gameInstance, character, { x, y }) {
   )
 }
 
-Bat.init = function(gameInstance) {
+Bat.init = function() {
+  var gameInstance = playScreen.instance;
+
   gameInstance.anims.create({
     key: 'bat-idle',
     frames: gameInstance.anims.generateFrameNumbers('bat', { start: 48, end: 53 }),
