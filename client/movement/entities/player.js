@@ -9,6 +9,9 @@ function Player(data, isCurrentUser = false) {
   this.sprite = _this.physics.add.sprite(0, 0, 'dude')
   this.sprite.setBounce(false);
   this.sprite.setCollideWorldBounds(true);
+
+  _this.physics.add.collider(this.sprite, _this.waterLayer);
+  _this.physics.add.collider(this.sprite, _this.terrainLayer);
 }
 
 Player.addAnimations = function() {
