@@ -29,20 +29,40 @@ var currentUser = null;
 function preload ()
 {
     _this = this;
-    this.load.image('sky', '../public/assets/floor.jpg');
+
     this.load.spritesheet('dude', 
         '../public/assets/sprites.png',
         { frameWidth: 64, frameHeight: 96 }
     );
+
+    this.load.image("tiles", "../public/assets/tilesheet.png");
+    this.load.tilemapTiledJSON("map", "../public/assets/map/my-first-map.json");
+
     t1 = Date.now();
 }
 
 function create ()
 {
+    var map = this.make.tilemap({ key: "map", tileWidth: 32, tileHeight: 32 });
+    // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
+    // Phaser's cache (i.e. the name you used in preload)
+    var tileset = map.addTilesetImage("tilesheet", "tiles");
+
+    // Parameters: layer name (or index) from Tiled, tileset, x, y
+    this.grassLayer = map.createStaticLayer("grass", tileset, 0, 0);
+    this.roadsLayer = map.createStaticLayer("roads", tileset, 0, 0);
+    this.waterLayer = map.createStaticLayer("water", tileset, 0, 0).setCollisionByProperty({ collides: true });
+    this.terrainLayer = map.createStaticLayer("terrain", tileset, 0, 0).setCollisionByProperty({ collides: true });
+
+    const debugGraphics = this.add.graphics().setAlpha(0.75);
+    this.terrainLayer.renderDebug(debugGraphics, {
+        tileColor: null, // Color of non-colliding tiles
+        collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+        faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+    });
+
     Client.joinGame();
     Player.addAnimations();
-
-    this.add.image(0, 0, 'sky').setOrigin(0, 0);
 }
 
 function update() {
@@ -53,6 +73,9 @@ function update() {
             // removes first movement from queue and returns it to be used to update user
             movement = spawnedUsers[id].movementQueue.shift();
             player.update(movement);
+        }
+        if (player.isCurrentUser) {
+          _this.cameras.main.centerOn(player.sprite.x, player.sprite.y);
         }
     }
 }
